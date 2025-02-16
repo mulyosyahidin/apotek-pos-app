@@ -86,7 +86,7 @@ export default function SuppliersCreate({provinces, regencies, success}) {
                                 </Subheading>
                             </div>
                             <div>
-                                <Input aria-label="Nama supllier" name="name" value={data.name}
+                                <Input aria-label="Nama supplier" name="name" value={data.name}
                                        onChange={handleChange}/>
                                 <InputError message={errors.name} className="mt-2"/>
                             </div>
@@ -166,7 +166,7 @@ export default function SuppliersCreate({provinces, regencies, success}) {
                                 <Subheading>No. HP</Subheading>
                             </div>
                             <div>
-                                <Input aria-label="No. HP supllier" name="phone_number" value={data.phone_number}
+                                <Input aria-label="No. HP supplier" name="phone_number" value={data.phone_number}
                                        onChange={handleChange}/>
                                 <InputError message={errors.phone_number} className="mt-2"/>
                             </div>
@@ -179,7 +179,7 @@ export default function SuppliersCreate({provinces, regencies, success}) {
                                 <Subheading>Email</Subheading>
                             </div>
                             <div>
-                                <Input aria-label="Email supllier" name="email" value={data.email}
+                                <Input aria-label="Email supplier" name="email" value={data.email}
                                        onChange={handleChange}/>
                                 <InputError message={errors.email} className="mt-2"/>
                             </div>

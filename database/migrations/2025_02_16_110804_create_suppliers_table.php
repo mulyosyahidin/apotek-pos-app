@@ -11,7 +11,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('suppliers', function (Blueprint $table) {
-            $table->increments('id');
+            $table->smallIncrements('id');
             $table->string('name', 96);
             $table->string('address')->nullable();
             $table->unsignedTinyInteger('province_id')->nullable();

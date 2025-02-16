@@ -11,6 +11,7 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
    Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
 
    Route::resource('suppliers', \App\Http\Controllers\SupplierController::class)->except('show');
+   Route::resource('product-groups', \App\Http\Controllers\ProductGroupController::class)->except('show');
 });
 
 require __DIR__.'/auth.php';

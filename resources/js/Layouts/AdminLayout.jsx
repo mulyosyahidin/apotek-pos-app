@@ -90,7 +90,7 @@ export default function AdminLayout({ children }) {
 
                         <SidebarSection>
                             <SidebarHeading>Master Data</SidebarHeading>
-                            <SidebarItem href="#">
+                            <SidebarItem href={route('product-groups.index')} current={pathname.startsWith('/product-groups')}>
                                 <TagIcon/>
                                 <SidebarLabel>Grup Produk</SidebarLabel>
                             </SidebarItem>
