@@ -95,7 +95,7 @@ export default function AdminLayout({ children }) {
                                 <SidebarLabel>Grup Produk</SidebarLabel>
                             </SidebarItem>
 
-                            <SidebarItem href="#">
+                            <SidebarItem href={route('products.index')} current={pathname.startsWith('/products')}>
                                 <RocketLaunchIcon/>
                                 <SidebarLabel>Produk</SidebarLabel>
                             </SidebarItem>

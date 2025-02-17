@@ -12,6 +12,7 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 
    Route::resource('suppliers', \App\Http\Controllers\SupplierController::class)->except('show');
    Route::resource('product-groups', \App\Http\Controllers\ProductGroupController::class)->except('show');
+   Route::resource('products', \App\Http\Controllers\ProductController::class);
 });
 
 require __DIR__.'/auth.php';

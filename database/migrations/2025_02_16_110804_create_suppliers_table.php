@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->unsignedTinyInteger('province_id')->nullable();
             $table->unsignedSmallInteger('regency_id')->nullable();
             $table->string('phone_number', 16)->nullable();
-            $table->string('email', 96)->unique()->nullable();
+            $table->string('email', 96)->nullable();
             $table->enum('status', \App\Enums\SupplierStatus::values())->default(\App\Enums\SupplierStatus::ACTIVE->value);
 
             $table->foreign('province_id')->references('id')->on('provinces')->nullOnDelete()->cascadeOnUpdate();
