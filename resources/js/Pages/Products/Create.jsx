@@ -43,8 +43,6 @@ export default function ProductCreate({productUnits, productTypes, productStatus
     const submit = (e) => {
         e.preventDefault();
 
-        console.log(data)
-
         post(route('products.store'), {
             onSuccess: () => {
                 reset();
