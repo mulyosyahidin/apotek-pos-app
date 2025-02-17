@@ -1,5 +1,5 @@
 import {useEffect, useState, useRef, forwardRef, useImperativeHandle} from "react";
-import {Input} from "@/Components/Catalyst/input.jsx";
+import {Input} from "@/Components/Catalyst/input";
 
 const SupplierSelect = forwardRef(({value, onChange}, ref) => {
     const [query, setQuery] = useState("");

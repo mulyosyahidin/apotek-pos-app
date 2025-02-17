@@ -1,12 +1,12 @@
 import {Head, useForm} from "@inertiajs/react";
-import AdminLayout from "@/Layouts/AdminLayout.jsx";
-import BackButton from "@/Components/BackButton.jsx";
-import {Heading, Subheading} from "@/Components/Catalyst/heading.jsx";
-import {Divider} from "@/Components/Catalyst/divider.jsx";
-import {Input} from "@/Components/Catalyst/input.jsx";
-import InputError from "@/Components/InputError.jsx";
-import {Textarea} from "@/Components/Catalyst/textarea.jsx";
-import {Button} from "@/Components/Catalyst/button.jsx";
+import AdminLayout from "@/Layouts/AdminLayout";
+import BackButton from "@/Components/BackButton";
+import {Heading, Subheading} from "@/Components/Catalyst/heading";
+import {Divider} from "@/Components/Catalyst/divider";
+import {Input} from "@/Components/Catalyst/input";
+import InputError from "@/Components/InputError";
+import {Textarea} from "@/Components/Catalyst/textarea";
+import {Button} from "@/Components/Catalyst/button";
 import {useEffect, useState} from "react";
 
 export default function SuppliersEdit({supplier, provinces, regencies, success}) {

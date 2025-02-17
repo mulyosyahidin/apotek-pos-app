@@ -1,9 +1,9 @@
 import {Head} from "@inertiajs/react";
-import AdminLayout from "@/Layouts/AdminLayout.jsx";
-import BackButton from "@/Components/BackButton.jsx";
-import {Heading, Subheading} from "@/Components/Catalyst/heading.jsx";
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/Components/Catalyst/table.jsx";
-import {formatDateWithTime, formatRupiah} from "@/utils.js";
+import AdminLayout from "@/Layouts/AdminLayout";
+import BackButton from "@/Components/BackButton";
+import {Heading, Subheading} from "@/Components/Catalyst/heading";
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/Components/Catalyst/table";
+import {formatDateWithTime, formatRupiah, transactionCustomerType, transactionPaymentType} from "@/utils.js";
 import {useEffect} from "react";
 
 export default function TransactionShow({transaction}) {
@@ -66,14 +66,14 @@ export default function TransactionShow({transaction}) {
                         <TableRow key={7}>
                             <TableCell>Pembayaran</TableCell>
                             <TableCell>
-                                <strong>{transaction.payment_type}</strong>
+                                <strong>{transactionPaymentType(transaction.payment_type)}</strong>
                             </TableCell>
                         </TableRow>
 
                         <TableRow key={8}>
                             <TableCell>Jenis Pelanggan</TableCell>
                             <TableCell>
-                                <strong>{transaction.customer_type}</strong>
+                                <strong>{transactionCustomerType(transaction.customer_type)}</strong>
                             </TableCell>
                         </TableRow>
                     </TableBody>

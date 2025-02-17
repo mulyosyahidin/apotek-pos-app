@@ -1,26 +1,25 @@
 import {Head, router} from "@inertiajs/react";
-import AdminLayout from "@/Layouts/AdminLayout.jsx";
-import {Heading, Subheading} from "@/Components/Catalyst/heading.jsx";
+import AdminLayout from "@/Layouts/AdminLayout";
+import {Heading, Subheading} from "@/Components/Catalyst/heading";
 import {
     ExclamationTriangleIcon,
     EyeIcon,
     FunnelIcon,
-    MagnifyingGlassIcon,
-    PencilSquareIcon, TrashIcon
-} from "@heroicons/react/24/outline/index.js";
-import {useEffect, useMemo, useState} from "react";
-import {Dialog, DialogActions, DialogBody, DialogTitle} from "@/Components/Catalyst/dialog.jsx";
-import {Button} from "@/Components/Catalyst/button.jsx";
-import {formatDate, formatRupiah, limitText, formatDateWithTime} from "@/utils.js";
-import {Input} from "@/Components/Catalyst/input.jsx";
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/Components/Catalyst/table.jsx";
+    MagnifyingGlassIcon
+} from "@heroicons/react/24/outline";
+import {useMemo, useState} from "react";
+import {Dialog, DialogActions, DialogBody, DialogTitle} from "@/Components/Catalyst/dialog";
+import {Button} from "@/Components/Catalyst/button";
+import {formatRupiah, formatDateWithTime, transactionPaymentType} from "@/utils.js";
+import {Input} from "@/Components/Catalyst/input";
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/Components/Catalyst/table";
 import {
     Pagination,
     PaginationList,
     PaginationNext,
     PaginationPage,
     PaginationPrevious
-} from "@/Components/Catalyst/pagination.jsx";
+} from "@/Components/Catalyst/pagination";
 
 export default function ReportsIndex({time, defaultStartDate, defaultEndDate, totalSales, timeAsText, items, meta, searchQuery, defaultPerPage}) {
     const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
@@ -235,7 +234,7 @@ export default function ReportsIndex({time, defaultStartDate, defaultEndDate, to
                                                 <TableCell className="text-zinc-500">{formatRupiah(item.total_price)}</TableCell>
                                                 <TableCell className="text-zinc-500">{formatDateWithTime(item.date)}</TableCell>
                                                 <TableCell className="text-zinc-500">{item.cashier.name}</TableCell>
-                                                <TableCell className="text-zinc-500">{item.payment_type}</TableCell>
+                                                <TableCell className="text-zinc-500">{transactionPaymentType(item.payment_type)}</TableCell>
                                                 <TableCell className="flex justify-end gap-1">
                                                     <Button
                                                         outline={true}

@@ -1,18 +1,17 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import {Head, useForm} from '@inertiajs/react';
-import AdminLayout from "@/Layouts/AdminLayout.jsx";
-import {Heading, Subheading} from "@/Components/Catalyst/heading.jsx";
-import {Divider} from "@/Components/Catalyst/divider.jsx";
-import {useEffect, useRef, useState} from "react";
+import AdminLayout from "@/Layouts/AdminLayout";
+import {Heading, Subheading} from "@/Components/Catalyst/heading";
+import {Divider} from "@/Components/Catalyst/divider";
+import {useRef, useState} from "react";
 import {formatRupiah} from "@/utils.js";
-import {BanknotesIcon, EnvelopeIcon, PhoneIcon, UserIcon, UsersIcon} from "@heroicons/react/24/outline/index.js";
-import ProductSelect from "@/Pages/Dashboard/Components/ProductSelect.jsx";
-import {Input} from "@/Components/Catalyst/input.jsx";
-import {Button} from "@/Components/Catalyst/button.jsx";
-import InputError from "@/Components/InputError.jsx";
+import {BanknotesIcon, PhoneIcon, UserIcon, UsersIcon} from "@heroicons/react/24/outline";
+import ProductSelect from "@/Pages/Dashboard/Components/ProductSelect";
+import {Input} from "@/Components/Catalyst/input";
+import {Button} from "@/Components/Catalyst/button";
+import InputError from "@/Components/InputError";
 import SweetAlert2 from "react-sweetalert2";
 
-export default function Dashboard({success}) {
+export default function DashboardIndex({success}) {
     const {data, setData, post, processing, errors, reset} = useForm({
         name: '',
         phone_number: '',

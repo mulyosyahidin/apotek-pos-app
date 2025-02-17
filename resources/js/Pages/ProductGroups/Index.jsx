@@ -1,24 +1,23 @@
 import {Head, router} from "@inertiajs/react";
-import AdminLayout from "@/Layouts/AdminLayout.jsx";
-import {Button} from "@/Components/Catalyst/button.jsx";
-import {Heading} from "@/Components/Catalyst/heading.jsx";
-import {Input} from "@/Components/Catalyst/input.jsx";
+import AdminLayout from "@/Layouts/AdminLayout";
+import {Button} from "@/Components/Catalyst/button";
+import {Heading} from "@/Components/Catalyst/heading";
+import {Input} from "@/Components/Catalyst/input";
 import {MagnifyingGlassIcon, PencilSquareIcon, TrashIcon} from "@heroicons/react/24/outline/index.js";
-import {useCallback, useEffect, useMemo, useState} from "react";
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/Components/Catalyst/table.jsx";
+import {useEffect, useMemo, useState} from "react";
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/Components/Catalyst/table";
 import {ExclamationTriangleIcon} from "@heroicons/react/20/solid/index.js";
-import {limitText} from "@/utils.js";
-import {Dialog, DialogActions, DialogBody, DialogTitle} from "@/Components/Catalyst/dialog.jsx";
+import {Dialog, DialogActions, DialogBody, DialogTitle} from "@/Components/Catalyst/dialog";
 import {
     Pagination,
     PaginationList,
     PaginationNext,
     PaginationPage,
     PaginationPrevious
-} from "@/Components/Catalyst/pagination.jsx";
+} from "@/Components/Catalyst/pagination";
+import {productGroupCategory} from "@/utils.js";
 
 export default function ProductGroupsIndex({items, meta, success, searchQuery}) {
-    const [filteredItems, setFilteredItems] = useState(items);
     const [search, setSearch] = useState(searchQuery ?? '');
     const [perPage, setPerPage] = useState(meta.per_page);
 
@@ -31,16 +30,10 @@ export default function ProductGroupsIndex({items, meta, success, searchQuery}) 
     const performSearch = (perPage = 10) => {
         const queryParams = {search, per_page: perPage};
 
-        router.get(route('product-groups.index', queryParams), {
-            onSuccess: (response) => {
-                setFilteredItems(response.props.items);
-            }
-        });
+        router.get(route('product-groups.index', queryParams));
     };
 
     // pagination: start
-    const [currentPage, setCurrentPage] = useState(meta.current_page);
-
     const paginationPages = useMemo(() => {
         const totalPages = meta.total_pages;
         const currentPage = meta.current_page;
@@ -61,11 +54,7 @@ export default function ProductGroupsIndex({items, meta, success, searchQuery}) 
 
     const handlePageChange = (page, search, perPage) => {
         const queryParams = {page, search, per_page: perPage};
-        router.get(route('product-groups.index', queryParams), {
-            onSuccess: (response) => {
-                setFilteredItems(response.props.items);
-            }
-        });
+        router.get(route('product-groups.index', queryParams));
     };
     // pagination: end
 
@@ -161,7 +150,7 @@ export default function ProductGroupsIndex({items, meta, success, searchQuery}) 
                                             <TableRow key={item.id}>
                                                 <TableCell>{startIndex + index + 1}</TableCell>
                                                 <TableCell className="text-zinc-500">{item.name}</TableCell>
-                                                <TableCell className="text-zinc-500">{item.category}</TableCell>
+                                                <TableCell className="text-zinc-500">{productGroupCategory(item.category)}</TableCell>
                                                 <TableCell className="text-zinc-500">
                                                     {
                                                         item.status === 'active' ? (

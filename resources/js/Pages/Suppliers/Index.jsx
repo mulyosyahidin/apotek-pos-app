@@ -1,21 +1,21 @@
 import {Head, router} from "@inertiajs/react";
-import AdminLayout from "@/Layouts/AdminLayout.jsx";
-import {Button} from "@/Components/Catalyst/button.jsx";
-import {Heading} from "@/Components/Catalyst/heading.jsx";
-import {Input} from "@/Components/Catalyst/input.jsx";
+import AdminLayout from "@/Layouts/AdminLayout";
+import {Button} from "@/Components/Catalyst/button";
+import {Heading} from "@/Components/Catalyst/heading";
+import {Input} from "@/Components/Catalyst/input";
 import {MagnifyingGlassIcon, PencilSquareIcon, TrashIcon} from "@heroicons/react/24/outline/index.js";
 import {useMemo, useState} from "react";
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/Components/Catalyst/table.jsx";
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/Components/Catalyst/table";
 import {ExclamationTriangleIcon} from "@heroicons/react/20/solid/index.js";
 import {limitText} from "@/utils.js";
-import {Dialog, DialogActions, DialogBody, DialogTitle} from "@/Components/Catalyst/dialog.jsx";
+import {Dialog, DialogActions, DialogBody, DialogTitle} from "@/Components/Catalyst/dialog";
 import {
     Pagination,
     PaginationList,
     PaginationNext,
     PaginationPage,
     PaginationPrevious
-} from "@/Components/Catalyst/pagination.jsx";
+} from "@/Components/Catalyst/pagination";
 
 export default function SuppliersIndex({items, meta, success, searchQuery}) {
     const [filteredItems, setFilteredItems] = useState(items);

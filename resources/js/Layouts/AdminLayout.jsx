@@ -30,7 +30,7 @@ import {usePage} from "@inertiajs/react";
 function AccountDropdownMenu({ anchor }) {
     return (
         <DropdownMenu className="min-w-64" anchor={anchor}>
-            <DropdownItem href="#">
+            <DropdownItem href={route('profile.edit')}>
                 <UserCircleIcon />
                 <DropdownLabel>Akun Saya</DropdownLabel>
             </DropdownItem>
@@ -82,7 +82,7 @@ export default function AdminLayout({ children }) {
 
                         <SidebarSection>
                             <SidebarHeading>Laporan</SidebarHeading>
-                            <SidebarItem href={route('reports.index')} current={pathname === '/reports'}>
+                            <SidebarItem href={route('reports.index')} current={pathname.startsWith('/reports')}>
                                 <ChartPieIcon/>
                                 <SidebarLabel>Laporan</SidebarLabel>
                             </SidebarItem>
