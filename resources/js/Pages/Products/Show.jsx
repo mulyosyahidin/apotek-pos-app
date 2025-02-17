@@ -28,6 +28,7 @@ export default function ProductShow({product, success}) {
                 <BackButton link={route('products.index')}/>
 
                 <Heading className={'mt-8'}>Data Produk</Heading>
+
                 {success && (
                     <div className="mb-4 mt-2 text-sm font-medium text-green-600">
                         {success}

@@ -7,7 +7,18 @@ export const limitText = (value, max = -1, suffix = '...') => {
 }
 
 export const formatDate = (date) => {
-    return new Date(date).toLocaleDateString();
+    return new Date(date).toLocaleDateString("id-ID");
+}
+
+export const formatDateWithTime = (date) => {
+    return new Date(date).toLocaleString("id-ID", {
+        day: "numeric",
+        month: "numeric",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+    }).replace(".", ":");
 }
 
 export const formatRupiah = (value) => {

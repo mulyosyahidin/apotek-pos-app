@@ -355,7 +355,7 @@ export default function Dashboard({success}) {
                         </div>
                     </div>
 
-                    <section className="grid sm:grid-cols-2 gap-x-8">
+                    <section className="grid sm:grid-cols-2 gap-x-8 gap-y-10">
                         <div className="relative">
                             <label
                                 htmlFor="pay"

@@ -74,7 +74,7 @@ export default function AdminLayout({ children }) {
 
                     <SidebarBody>
                         <SidebarSection>
-                            <SidebarItem href="/dashboard" current={pathname === '/dashboard'}>
+                            <SidebarItem href={route('dashboard')} current={pathname === '/dashboard'}>
                                 <HomeIcon/>
                                 <SidebarLabel>Kasir</SidebarLabel>
                             </SidebarItem>
@@ -82,7 +82,7 @@ export default function AdminLayout({ children }) {
 
                         <SidebarSection>
                             <SidebarHeading>Laporan</SidebarHeading>
-                            <SidebarItem href="#">
+                            <SidebarItem href={route('reports.index')} current={pathname === '/reports'}>
                                 <ChartPieIcon/>
                                 <SidebarLabel>Laporan</SidebarLabel>
                             </SidebarItem>

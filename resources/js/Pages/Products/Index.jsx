@@ -127,7 +127,7 @@ export default function ProductsIndex({items, meta, success, searchQuery}) {
                                 <div></div>
                                 <Input
                                     onChange={(e) => setSearch(e.target.value)}
-                                    placeholder={'Cari grup produk'}
+                                    placeholder={'Cari produk'}
                                     value={search}
                                     onKeyPress={(e) => {
                                         if (e.key === 'Enter') {

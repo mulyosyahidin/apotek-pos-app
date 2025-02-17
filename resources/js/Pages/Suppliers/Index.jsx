@@ -4,11 +4,18 @@ import {Button} from "@/Components/Catalyst/button.jsx";
 import {Heading} from "@/Components/Catalyst/heading.jsx";
 import {Input} from "@/Components/Catalyst/input.jsx";
 import {MagnifyingGlassIcon, PencilSquareIcon, TrashIcon} from "@heroicons/react/24/outline/index.js";
-import {useState} from "react";
+import {useMemo, useState} from "react";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/Components/Catalyst/table.jsx";
 import {ExclamationTriangleIcon} from "@heroicons/react/20/solid/index.js";
 import {limitText} from "@/utils.js";
 import {Dialog, DialogActions, DialogBody, DialogTitle} from "@/Components/Catalyst/dialog.jsx";
+import {
+    Pagination,
+    PaginationList,
+    PaginationNext,
+    PaginationPage,
+    PaginationPrevious
+} from "@/Components/Catalyst/pagination.jsx";
 
 export default function SuppliersIndex({items, meta, success, searchQuery}) {
     const [filteredItems, setFilteredItems] = useState(items);
@@ -40,6 +47,39 @@ export default function SuppliersIndex({items, meta, success, searchQuery}) {
         });
     }
     // delete action: end
+
+    const [perPage, setPerPage] = useState(meta.per_page);
+
+    // pagination: start
+    const [currentPage, setCurrentPage] = useState(meta.current_page);
+
+    const paginationPages = useMemo(() => {
+        const totalPages = meta.total_pages;
+        const currentPage = meta.current_page;
+        const pages = [];
+
+        const lowerBound = Math.max(1, currentPage - 3);
+        const upperBound = Math.min(totalPages, currentPage + 3);
+
+        for (let page = lowerBound; page <= upperBound; page++) {
+            pages.push({
+                page: page - 1,
+                isCurrent: currentPage === page
+            });
+        }
+
+        return pages;
+    }, [meta]);
+
+    const handlePageChange = (page, search, perPage) => {
+        const queryParams = {page, search, per_page: perPage};
+        router.get(route('suppliers.index', queryParams), {
+            onSuccess: (response) => {
+                setFilteredItems(response.props.items);
+            }
+        });
+    };
+    // pagination: end
 
     return (
         <>
@@ -147,6 +187,31 @@ export default function SuppliersIndex({items, meta, success, searchQuery}) {
                                     })}
                                 </TableBody>
                             </Table>
+
+                            {meta.total_items > meta.per_page && (
+                                <Pagination className="mt-6">
+                                    <PaginationPrevious
+                                        href={meta.current_page > 1 ? `?page=${meta.current_page - 1}&search=${search}&per_page=${perPage}` : null}
+                                        onClick={() => handlePageChange(meta.current_page - 1, search, perPage)}
+                                    />
+                                    <PaginationList>
+                                        {paginationPages.map(({page, isCurrent}) => (
+                                            <PaginationPage
+                                                key={page}
+                                                href={`?page=${page + 1}&search=${search}&per_page=${perPage}`}
+                                                current={isCurrent}
+                                                onClick={() => handlePageChange(page + 1, search, perPage)}
+                                            >
+                                                {page + 1}
+                                            </PaginationPage>
+                                        ))}
+                                    </PaginationList>
+                                    <PaginationNext
+                                        href={meta.current_page < meta.total_pages ? `?page=${meta.current_page + 1}&search=${search}&per_page=${perPage}` : null}
+                                        onClick={() => handlePageChange(meta.current_page + 1, search, perPage)}
+                                    />
+                                </Pagination>
+                            )}
                         </>
                     )
                 }
