@@ -179,6 +179,7 @@ export default function ProductsIndex({items, meta, success, searchQuery}) {
                                                 </TableCell>
                                                 <TableCell className="text-zinc-500">{item.stock}</TableCell>
                                                 <TableCell className="text-zinc-500">{formatRupiah(item.purchase_price)}</TableCell>
+                                                <TableCell className="text-zinc-500">{formatRupiah(item.general_sell_price)}</TableCell>
                                                 <TableCell className="text-zinc-500">{formatRupiah(item.medical_sell_price)}</TableCell>
                                                 <TableCell className="text-zinc-500">{item.expire_date ? formatDate(item.expire_date) : '-'}</TableCell>
                                                 <TableCell className="flex justify-end gap-1">

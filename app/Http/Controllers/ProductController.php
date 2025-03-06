@@ -66,7 +66,7 @@ class ProductController extends Controller
         $request->validate([
             'batch_number' => 'required|string|max:20|unique:products,batch_number',
             'pbf_number' => 'required|string|max:64|unique:products,pbf_number',
-            'barcode_content' => 'required|string|max:64|unique:products,barcode_content',
+            'barcode_content' => 'nullable|string|max:64|unique:products,barcode_content',
             'name' => 'nullable|string|max:64',
             'stock' => 'required|integer|min:0',
             'unit' => 'required|string|in:' . implode(',', \App\Enums\ProductUnit::values()),
@@ -128,7 +128,7 @@ class ProductController extends Controller
         $request->validate([
             'batch_number' => 'required|string|max:20|unique:products,batch_number,' . $product->id,
             'pbf_number' => 'required|string|max:64|unique:products,pbf_number,' . $product->id,
-            'barcode_content' => 'required|string|max:64|unique:products,barcode_content,' . $product->id,
+            'barcode_content' => 'nullable|string|max:64|unique:products,barcode_content,' . $product->id,
             'name' => 'nullable|string|max:64',
             'stock' => 'required|integer|min:0',
             'unit' => 'required|string|in:' . implode(',', \App\Enums\ProductUnit::values()),

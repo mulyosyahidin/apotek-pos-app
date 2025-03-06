@@ -78,7 +78,7 @@ const ProductSelect = forwardRef(({value, onChange}, ref) => {
                                 className="p-2 hover:bg-blue-100 cursor-pointer"
                                 onClick={() => handleSelect(item)}
                             >
-                                {item.name} (Satuan: {item.unit}) | (Jual: {formatRupiah(item.general_sell_price)}) | (Stok: {item.stock}) | (Expire: {formatDate(item.expire_date)})
+                                {item.name} | Satuan: {item.unit} | Jual Umum: {formatRupiah(item.general_sell_price)} | Jual Medis: {formatRupiah(item.medical_sell_price)} | Stok: {item.stock} | Expire: {formatDate(item.expire_date)}
                             </li>
                         ))
                     ) : (

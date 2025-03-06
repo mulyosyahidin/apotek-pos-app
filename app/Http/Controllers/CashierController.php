@@ -13,7 +13,7 @@ class CashierController extends Controller
         $request->validate([
             'name' => 'required|string|max:32',
             'phone_number' => 'nullable|max:16',
-            'customer_type' => 'required|string|in:general',
+            'customer_type' => 'required|string|in:general,medical',
             'payment_type' => 'required|string|in:paid-off',
             'items' => 'required|array',
             'items.*.id' => 'required|integer|exists:products,id',
@@ -27,7 +27,7 @@ class CashierController extends Controller
             $productId = $item['id'];
             $product = $this->findProductById($productId);
 
-            $totalPrice += $item['quantity'] * $product->general_sell_price;
+            $totalPrice += $item['quantity'] * ($request->customer_type === 'general' ? $product->general_sell_price : $product->medical_sell_price);
             $totalItems += $item['quantity'];
         }
 
@@ -48,7 +48,7 @@ class CashierController extends Controller
 
             $transaction->items()->create([
                 'product_id' => $product->id,
-                'price' => $product->general_sell_price,
+                'price' => $request->customer_type === 'general' ? $product->general_sell_price : $product->medical_sell_price,
                 'quantity' => $item['quantity'],
                 'unit' => $product->unit,
             ]);

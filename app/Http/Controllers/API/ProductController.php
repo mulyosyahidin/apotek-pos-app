@@ -23,7 +23,7 @@ class ProductController extends Controller
 
         $productGroups = Product::where('name', 'like', "%$search%")
             ->where('status', ProductStatus::ACTIVE->value)
-            ->select(['id', 'name', 'unit', 'general_sell_price', 'stock', 'expire_date'])
+            ->select(['id', 'name', 'unit', 'general_sell_price', 'medical_sell_price', 'stock', 'expire_date'])
             ->limit(10)
             ->get();
 

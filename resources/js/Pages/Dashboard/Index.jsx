@@ -20,6 +20,8 @@ export default function DashboardIndex({success}) {
         items: [],
     });
 
+    const [customerType, setCustomerType] = useState('general');
+
     const [swalProps, setSwalProps] = useState({});
 
     const productSelectRef = useRef(null);
@@ -33,13 +35,20 @@ export default function DashboardIndex({success}) {
     const [cashback, setCashback] = useState(0);
 
     const handleChange = (e) => {
-        const {name, value} = e.target;
+        const {name, value, type} = e.target;
+
+        if (name === 'customer_type') {
+            setCustomerType(value);
+
+            // update total
+            setTotal(items.reduce((sum, item) => sum + (value === 'general' ? item.general_subtotal : item.medical_subtotal), 0));
+        }
 
         setData((prevData) => ({
             ...prevData,
-            [name]: value,
+            [name]: type === "select-one" ? value : value,
         }));
-    }
+    };
 
     const handleAddItem = () => {
         if (!tempProduct || tempQuantity <= 0) return;
@@ -53,7 +62,8 @@ export default function DashboardIndex({success}) {
                     ? {
                         ...item,
                         quantity: Number(item.quantity) + Number(tempQuantity),
-                        subtotal: (Number(item.quantity) + Number(tempQuantity)) * Number(item.price)
+                        general_subtotal: (Number(item.quantity) + Number(tempQuantity)) * Number(item.general_price),
+                        medical_subtotal: (Number(item.quantity) + Number(tempQuantity)) * Number(item.medical_price),
                     }
                     : item
             );
@@ -63,8 +73,10 @@ export default function DashboardIndex({success}) {
                 unit: tempProduct.unit,
                 product: tempProduct.name,
                 quantity: Number(tempQuantity),
-                price: Number(tempProduct.general_sell_price),
-                subtotal: Number(tempQuantity) * Number(tempProduct.general_sell_price),
+                general_price: Number(tempProduct.general_sell_price),
+                medical_price: Number(tempProduct.medical_sell_price),
+                general_subtotal: Number(tempQuantity) * Number(tempProduct.general_sell_price),
+                medical_subtotal: Number(tempQuantity) * Number(tempProduct.medical_sell_price),
             };
 
             updatedItems = [...items, newItem];
@@ -73,7 +85,7 @@ export default function DashboardIndex({success}) {
         setItems(updatedItems);
         setData(prevData => ({...prevData, items: updatedItems}));
 
-        setTotal(updatedItems.reduce((sum, item) => sum + item.subtotal, 0));
+        setTotal(updatedItems.reduce((sum, item) => sum + (customerType === 'general' ? item.general_subtotal : item.medical_subtotal), 0));
 
         if (productSelectRef.current) {
             productSelectRef.current.reset();
@@ -88,7 +100,7 @@ export default function DashboardIndex({success}) {
 
         setItems(updatedItems);
         setData(prevData => ({...prevData, items: updatedItems}));
-        setTotal(prevTotal => prevTotal - removedItem.subtotal);
+        setTotal(prevTotal => prevTotal - (customerType === 'general' ? removedItem.general_subtotal : removedItem.medical_subtotal));
     };
 
     const handlePayChange = (e) => {
@@ -256,12 +268,15 @@ export default function DashboardIndex({success}) {
                                         className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                                         <UsersIcon aria-hidden="true" className="h-5 w-5 text-gray-400"/>
                                     </div>
-                                    <input
+                                    <select
                                         id="customer-type"
-                                        type="text"
-                                        value="Umum"
-                                        className="block w-full rounded-md border-0 py-1.5 pl-10 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                        disabled={true}/>
+                                        name="customer_type"
+                                        value={data.customer_type}
+                                        onChange={handleChange}
+                                        className="block w-full rounded-md border-0 py-1.5 pl-10 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                                        <option value="general">Umum</option>
+                                        <option value="medical">Medis</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -304,7 +319,7 @@ export default function DashboardIndex({success}) {
                                                 Produk
                                             </th>
                                             <th scope="col"
-                                                className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 text-end">
+                                                className="px-3 py-3.5 text-center text-sm font-semibold text-gray-900">
                                                 Jumlah
                                             </th>
                                             <th scope="col"
@@ -333,9 +348,15 @@ export default function DashboardIndex({success}) {
                                                     <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
                                                         {item.product}
                                                     </td>
-                                                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-end">{item.quantity}</td>
-                                                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{formatRupiah(item.price)}</td>
-                                                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{formatRupiah(item.subtotal)}</td>
+                                                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-center">
+                                                        {item.quantity} {item.unit}
+                                                    </td>
+                                                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                                        {customerType === 'general' ? formatRupiah(item.general_price) : formatRupiah(item.medical_price)}
+                                                    </td>
+                                                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                                        {customerType === 'general' ? formatRupiah(item.general_subtotal) : formatRupiah(item.medical_subtotal)}
+                                                    </td>
                                                     <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                                                         <button
                                                             onClick={() => handleRemoveItem(index)}
