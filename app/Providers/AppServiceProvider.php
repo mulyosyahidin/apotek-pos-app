@@ -12,7 +12,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        if (config('app.env') === 'production' && request()->server(key: 'HTTP_X_FORWARDED_PROTO') === 'https') {
+            \URL::forceScheme(scheme: 'https');
+        }
     }
 
     /**

@@ -1,0 +1,51 @@
+services:
+  server:
+    build:
+      context: .
+      dockerfile: ./docker/production/nginx/Dockerfile
+    restart: unless-stopped
+    volumes:
+      - app-storage:/var/www/html/storage:ro
+      - app-build:/var/www/html/public/build:ro
+      - ./docker/production/nginx/logs:/var/log/nginx:rw
+    environment:
+      - NGINX_HOST=localhost
+    networks:
+      - apotek-production-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      app:
+        condition: service_healthy
+
+  app:
+    image: apotek-app:production
+    restart: unless-stopped
+    volumes:
+      - app-storage:/var/www/html/storage
+      - app-build:/var/www/html/public/build
+    env_file:
+      - .env
+    networks:
+      - apotek-production-network
+      - database_apps-network
+    healthcheck:
+      test: ["CMD-SHELL", "php-fpm-healthcheck || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+networks:
+  apotek-production-network:
+    driver: bridge
+  database_apps-network:
+    external: true
+
+volumes:
+  app-storage:
+    driver: local
+  app-build:
+    driver: local
