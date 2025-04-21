@@ -106,7 +106,7 @@ export default function ProductEdit({product, productUnits, productTypes, produc
 
                                 <div>
                                     <Subheading>Barang Utama</Subheading>
-                                    {product.product_group.name || "Tidak ada"}
+                                    {product.product_group?.name || "Tidak ada"}
 
                                     <div className="mt-2">
                                         <ProductGroupSelect
@@ -123,7 +123,7 @@ export default function ProductEdit({product, productUnits, productTypes, produc
 
                                 <div>
                                     <Subheading>Supplier</Subheading>
-                                    {product.supplier.name || "Tidak ada"}
+                                    {product.supplier?.name || "Tidak ada"}
 
                                     <div className="mt-2">
                                         <SupplierSelect
