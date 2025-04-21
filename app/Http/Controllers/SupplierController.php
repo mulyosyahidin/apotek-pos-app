@@ -71,6 +71,23 @@ class SupplierController extends Controller
             'email' => 'nullable|string|email|max:100',
             'province_id' => 'nullable|exists:provinces,id',
             'regency_id' => 'nullable|exists:regencies,id',
+        ], [
+            'name.required' => 'Nama tidak boleh kosong',
+            'name.string' => 'Nama harus berupa teks',
+            'name.max' => 'Nama maksimal 96 karakter',
+
+            'address.string' => 'Alamat harus berupa teks',
+            'address.max' => 'Alamat maksimal 255 karakter',
+
+            'phone_number.string' => 'Nomor telepon harus berupa teks',
+            'phone_number.max' => 'Nomor telepon maksimal 16 karakter',
+
+            'email.string' => 'Email harus berupa teks',
+            'email.email' => 'Format email tidak valid',
+            'email.max' => 'Email maksimal 100 karakter',
+
+            'province_id.exists' => 'Provinsi tidak ditemukan di database',
+            'regency_id.exists' => 'Kabupaten/Kota tidak ditemukan di database',
         ]);
 
         Supplier::create($request->all());
@@ -114,6 +131,23 @@ class SupplierController extends Controller
             'email' => 'nullable|string|email|max:100',
             'province_id' => 'nullable|exists:provinces,id',
             'regency_id' => 'nullable|exists:regencies,id',
+        ], [
+            'name.required' => 'Nama tidak boleh kosong',
+            'name.string' => 'Nama harus berupa teks',
+            'name.max' => 'Nama maksimal 96 karakter',
+
+            'address.string' => 'Alamat harus berupa teks',
+            'address.max' => 'Alamat maksimal 255 karakter',
+
+            'phone_number.string' => 'Nomor telepon harus berupa teks',
+            'phone_number.max' => 'Nomor telepon maksimal 16 karakter',
+
+            'email.string' => 'Email harus berupa teks',
+            'email.email' => 'Format email tidak valid',
+            'email.max' => 'Email maksimal 100 karakter',
+
+            'province_id.exists' => 'Provinsi tidak ditemukan',
+            'regency_id.exists' => 'Kabupaten/Kota tidak ditemukan',
         ]);
 
         $supplier->update($request->all());

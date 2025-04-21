@@ -56,6 +56,13 @@ class ProductGroupController extends Controller
         $request->validate([
             'name' => 'required|string|max:64',
             'category' => 'nullable|string|in:' . implode(',', ProductGroupCategory::values()),
+        ], [
+            'name.required' => 'Nama tidak boleh kosong',
+            'name.string' => 'Nama harus berupa teks',
+            'name.max' => 'Nama maksimal 64 karakter',
+
+            'category.string' => 'Kategori harus berupa teks',
+            'category.in' => 'Kategori yang dipilih tidak valid',
         ]);
 
         Product_group::create($request->all());
@@ -93,6 +100,13 @@ class ProductGroupController extends Controller
         $request->validate([
             'name' => 'required|string|max:64',
             'category' => 'nullable|string|in:' . implode(',', ProductGroupCategory::values()),
+        ], [
+            'name.required' => 'Nama grup produk tidak boleh kosong',
+            'name.string' => 'Nama grup produk harus berupa teks',
+            'name.max' => 'Nama grup produk maksimal 64 karakter',
+
+            'category.string' => 'Kategori harus berupa teks',
+            'category.in' => 'Kategori yang dipilih tidak valid',
         ]);
 
         $product_group->update($request->all());

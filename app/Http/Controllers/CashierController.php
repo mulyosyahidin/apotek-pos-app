@@ -18,6 +18,31 @@ class CashierController extends Controller
             'items' => 'required|array',
             'items.*.id' => 'required|integer|exists:products,id',
             'items.*.quantity' => 'required|integer|min:1',
+        ], [
+            'name.required' => 'Nama pelanggan tidak boleh kosong',
+            'name.string' => 'Nama pelanggan harus berupa teks',
+            'name.max' => 'Nama pelanggan maksimal 32 karakter',
+
+            'phone_number.max' => 'Nomor telepon maksimal 16 karakter',
+
+            'customer_type.required' => 'Tipe pelanggan tidak boleh kosong',
+            'customer_type.string' => 'Tipe pelanggan harus berupa teks',
+            'customer_type.in' => 'Tipe pelanggan harus salah satu dari: general, medical',
+
+            'payment_type.required' => 'Tipe pembayaran tidak boleh kosong',
+            'payment_type.string' => 'Tipe pembayaran harus berupa teks',
+            'payment_type.in' => 'Tipe pembayaran harus "paid-off"',
+
+            'items.required' => 'Daftar item tidak boleh kosong',
+            'items.array' => 'Format items harus berupa array',
+
+            'items.*.id.required' => 'ID produk pada setiap item tidak boleh kosong',
+            'items.*.id.integer' => 'ID produk harus berupa angka',
+            'items.*.id.exists' => 'Produk dengan ID tersebut tidak ditemukan',
+
+            'items.*.quantity.required' => 'Jumlah item tidak boleh kosong',
+            'items.*.quantity.integer' => 'Jumlah item harus berupa angka',
+            'items.*.quantity.min' => 'Jumlah item minimal 1',
         ]);
 
         $totalPrice = 0;
