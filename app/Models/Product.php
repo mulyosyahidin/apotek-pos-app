@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
@@ -50,5 +51,15 @@ class Product extends Model
     public function productGroup(): BelongsTo
     {
         return $this->belongsTo(Product_group::class);
+    }
+
+    /**
+     * Get all of the stock histories for the Product
+     *
+     * @return HasMany
+     */
+    public function stockHistories(): HasMany
+    {
+        return $this->hasMany(Product_stock_history::class);
     }
 }

@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Enums\ProductStatus;
 use App\Enums\ProductType;
 use App\Enums\ProductUnit;
+use App\Enums\StockTransactionType;
 use App\Models\Product;
+use App\Models\Product_stock_history;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -144,7 +146,7 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-        $product->load('supplier', 'productGroup');
+        $product->load('supplier', 'productGroup', 'stockHistories.user');
 
         return Inertia::render('Products/Show', [
             'product' => $product,
@@ -252,7 +254,21 @@ class ProductController extends Controller
         $data['supplier_id'] = $data['supplier_id'] ?? $product->supplier_id;
         $data['product_group_id'] = $data['product_group_id'] ?? $product->product_group_id;
 
+        $beforeStock = $product->getOriginal('stock');
+        $afterStock = $data['stock'];
+        $stockChange = $afterStock - $beforeStock;
+
         $product->update($data);
+
+        Product_stock_history::create([
+            'user_id' => $request->user()->id,
+            'product_id' => $product->id,
+            'transaction_type' => StockTransactionType::STOCK_UPDATE->value,
+            'stock_before' => $beforeStock,
+            'stock_after' => $afterStock,
+            'stock_change' => $stockChange,
+            'description' => 'User ' . $request->user()->name . ' melakukan update data',
+        ]);
 
         \Cache::forget('product-' . $product->id);
 

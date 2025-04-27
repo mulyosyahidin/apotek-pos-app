@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\StockTransactionType;
 use App\Models\Product;
+use App\Models\Product_stock_history;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 
@@ -76,6 +78,27 @@ class CashierController extends Controller
                 'price' => $request->customer_type === 'general' ? $product->general_sell_price : $product->medical_sell_price,
                 'quantity' => $item['quantity'],
                 'unit' => $product->unit,
+            ]);
+
+            $getProduct = Product::find($productId);
+
+            $beforeStock = $getProduct->stock;
+            $afterStock = $getProduct->stock - $item['quantity'];
+            $stockChange = $beforeStock - $afterStock;
+
+            Product::where('id', $productId)->update([
+                'stock' => $afterStock,
+            ]);
+
+            Product_stock_history::create([
+                'user_id' => $request->user()->id,
+                'product_id' => $productId,
+                'transaction_type' => StockTransactionType::SALE->value,
+                'action_id' => $transaction->id,
+                'stock_before' => $beforeStock,
+                'stock_after' => $afterStock,
+                'stock_change' => $stockChange,
+                'description' => 'User '. $request->user()->name . ' melakukan penjualan',
             ]);
         }
 

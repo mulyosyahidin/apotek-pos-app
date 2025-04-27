@@ -2,10 +2,10 @@ import {Head, useForm} from "@inertiajs/react";
 import AdminLayout from "@/Layouts/AdminLayout";
 import BackButton from "@/Components/BackButton";
 import {Heading} from "@/Components/Catalyst/heading";
-import {Table, TableBody, TableCell, TableRow} from "@/Components/Catalyst/table";
+import {Table, TableBody, TableCell, TableHead, TableRow} from "@/Components/Catalyst/table";
 import {formatDate, formatRupiah} from "@/utils.js";
 import {Button} from "@/Components/Catalyst/button";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {Dialog, DialogActions, DialogBody, DialogTitle} from "@/Components/Catalyst/dialog";
 
 export default function ProductShow({product, success}) {
@@ -19,6 +19,10 @@ export default function ProductShow({product, success}) {
             },
         });
     };
+
+    useEffect(() => {
+        console.log(product.stock_histories)
+    }, []);
 
     return (
         <>
@@ -164,6 +168,41 @@ export default function ProductShow({product, success}) {
                         Hapus
                     </Button>
                 </div>
+
+                <Heading className={'mt-8'}>Riwayat Stok</Heading>
+
+                <Table className="mt-8 [--gutter:theme(spacing.6)] lg:[--gutter:theme(spacing.10)]">
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>User</TableCell>
+                            <TableCell>Stok Sebelumnya</TableCell>
+                            <TableCell>Stok Baru</TableCell>
+                            <TableCell>Perubahan</TableCell>
+                            <TableCell>Keterangan</TableCell>
+                            <TableCell>Tanggal</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {product.stock_histories.length > 0 ? (
+                            product.stock_histories.map((history) => (
+                                <TableRow key={history.id}>
+                                    <TableCell>{history.user.name}</TableCell>
+                                    <TableCell>{history.stock_before}</TableCell>
+                                    <TableCell>{history.stock_after}</TableCell>
+                                    <TableCell>{history.stock_after}</TableCell>
+                                    <TableCell>{history.description}</TableCell>
+                                    <TableCell>{formatDate(history.created_at)}</TableCell>
+                                </TableRow>
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell colSpan={6} className="text-center">
+                                    Tidak ada riwayat stok
+                                </TableCell>
+                            </TableRow>
+                        )}
+                    </TableBody>
+                </Table>
             </AdminLayout>
 
             <Dialog open={isDeleteDialogOpen} onClose={() => setIsDeleteDialogOpen(false)}>
