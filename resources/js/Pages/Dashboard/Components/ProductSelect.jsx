@@ -2,7 +2,7 @@ import {useEffect, useState, useRef, forwardRef, useImperativeHandle} from "reac
 import {Input} from "@/Components/Catalyst/input.jsx";
 import {formatDate, formatRupiah} from "@/utils.js";
 
-const ProductSelect = forwardRef(({value, onChange}, ref) => {
+const ProductSelect = forwardRef(({value, onChange, onClick}, ref) => {
     const [query, setQuery] = useState("");
     const [options, setOptions] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -22,7 +22,7 @@ const ProductSelect = forwardRef(({value, onChange}, ref) => {
             return;
         }
 
-        if (query.length < 2) {
+        if (query.length === 0) {
             setOptions([]);
             setShowDropdown(false);
 
@@ -64,6 +64,7 @@ const ProductSelect = forwardRef(({value, onChange}, ref) => {
                 placeholder="Cari Produk..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
+                onClick={onClick}
                 className="w-full"
             />
 

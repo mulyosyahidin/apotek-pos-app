@@ -11,7 +11,7 @@ import {Button} from "@/Components/Catalyst/button";
 import InputError from "@/Components/InputError";
 import SweetAlert2 from "react-sweetalert2";
 
-export default function DashboardIndex({success}) {
+export default function DashboardIndex({success, info}) {
     const {data, setData, post, processing, errors, reset} = useForm({
         name: '',
         phone_number: '',
@@ -30,6 +30,7 @@ export default function DashboardIndex({success}) {
     const [items, setItems] = useState([]);
     const [tempProduct, setTempProduct] = useState(null);
     const [tempQuantity, setTempQuantity] = useState(1);
+    const [tempMaxStock, setTempMaxStock] = useState(0);
 
     const [pay, setPay] = useState(0);
     const [cashback, setCashback] = useState(0);
@@ -52,6 +53,17 @@ export default function DashboardIndex({success}) {
 
     const handleAddItem = () => {
         if (!tempProduct || tempQuantity <= 0) return;
+
+        if (tempQuantity > tempMaxStock) {
+            setSwalProps({
+                show: true,
+                title: 'Stok tidak mencukupi',
+                text: `Stok ${tempProduct.name} saat ini hanya ${tempMaxStock}`,
+                icon: 'error',
+            });
+
+            return;
+        }
 
         const existingIndex = items.findIndex(item => item.id === tempProduct.id);
 
@@ -151,6 +163,14 @@ export default function DashboardIndex({success}) {
 
             <AdminLayout>
                 <Heading>KASIR</Heading>
+
+                {
+                    info && (
+                        <div className="bg-yellow-50 border-l-4 border-yellow-400 text-yellow-700 p-4 mb-5 mt-5" role="alert">
+                            <p>{info}</p>
+                        </div>
+                    )
+                }
 
                 <Divider className="my-10" soft/>
 
@@ -287,12 +307,23 @@ export default function DashboardIndex({success}) {
                             <Subheading className="mb-2">Produk</Subheading>
                             <ProductSelect
                                 ref={productSelectRef}
-                                onChange={(product) => setTempProduct(product)}/>
+                                onChange={(product) => {
+                                    setTempProduct(product);
+                                    setTempMaxStock(product.stock);
+                                }}
+                                onClick={() => {
+                                    setTempMaxStock(0);
+                                }}
+                            />
                         </div>
 
                         <div className="grid sm:grid-cols-5 gap-x-4 gap-y-5">
                             <div className="col-span-4">
-                                <Subheading className="mb-2">Jumlah</Subheading>
+                                <Subheading className="mb-2">
+                                    Jumlah
+                                    {tempMaxStock > 0 &&
+                                        <small className="text-gray-500 ml-3">(Stok saat ini: {tempMaxStock})</small>}
+                                </Subheading>
                                 <Input
                                     type="number"
                                     value={tempQuantity}

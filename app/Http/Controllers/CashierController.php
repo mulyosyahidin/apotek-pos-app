@@ -47,6 +47,15 @@ class CashierController extends Controller
             'items.*.quantity.min' => 'Jumlah item minimal 1',
         ]);
 
+        foreach ($request->items as $item) {
+            $getProduct = Product::find($item['id']);
+
+            $currentStock = $getProduct->stock;
+            if ($currentStock < $item['quantity']) {
+                return redirect()->back()->with('info', 'Stok produk ' . $getProduct->name . ' tidak mencukupi. Stok saat ini: ' . $currentStock);
+            }
+        }
+
         $totalPrice = 0;
         $totalItems = 0;
 
@@ -98,7 +107,7 @@ class CashierController extends Controller
                 'stock_before' => $beforeStock,
                 'stock_after' => $afterStock,
                 'stock_change' => $stockChange,
-                'description' => 'User '. $request->user()->name . ' melakukan penjualan',
+                'description' => 'User ' . $request->user()->name . ' melakukan penjualan',
             ]);
         }
 

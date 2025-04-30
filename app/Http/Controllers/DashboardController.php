@@ -11,6 +11,7 @@ class DashboardController extends Controller
     {
         return Inertia::render('Dashboard/Index', [
             'success' => session('success'),
+            'info' => session('info'),
         ]);
     }
 }
