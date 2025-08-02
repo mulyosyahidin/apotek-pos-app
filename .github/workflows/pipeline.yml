@@ -108,7 +108,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/apotek-app:production
+          tags: ghcr.io/${{ github.repository_owner }}/apotek-app:${{ vars.CURRENT_VERSION }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -119,30 +119,30 @@ jobs:
       - name: Setup SSH Key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ vars.HOST }} >> ~/.ssh/known_hosts
 
       - name: Deploy via SSH
         run: |
-          ssh -i ~/.ssh/id_rsa ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
+          ssh -i ~/.ssh/id_rsa ${{ vars.USERNAME }}@${{ vars.HOST }} << 'EOF'
             set -e
-            cd ${{ secrets.APP_PATH }}
+            cd ${{ vars.APP_PATH }}
 
             echo "Logging in to GHCR..."
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin || { echo "GHCR login failed"; exit 1; }
 
             echo "Pulling new image..."
-            docker pull ghcr.io/${{ github.repository_owner }}/apotek-app:production || { echo "Docker pull failed"; exit 1; }
+            docker pull ghcr.io/${{ github.repository_owner }}/apotek-app:${{ vars.CURRENT_VERSION}} || { echo "Docker pull failed"; exit 1; }
 
             echo "Tagging image..."
-            docker tag ghcr.io/${{ github.repository_owner }}/apotek-app:production apotek-app:production
+            docker tag ghcr.io/${{ github.repository_owner }}/apotek-app:${{ vars.CURRENT_VERSION}} apotek-app:${{ vars.CURRENT_VERSION }}
 
             echo "Stopping existing containers..."
             docker compose down || echo "No containers running, skipping shutdown."
 
             echo "Remove inertia-build volume..."
-            docker volume rm apotekupperdevcloud_app-public || echo "Volume apotekupperdevcloud_app-public tidak ditemukan, lanjut..."
+            docker volume rm apotekcodewithcyou_app-public || echo "Volume apotekcodewithcyou_app-public_app-public tidak ditemukan, lanjut..."
 
             echo "Starting new containers..."
             docker compose up -d || { echo "Docker compose up failed"; exit 1; }
