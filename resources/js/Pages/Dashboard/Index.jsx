@@ -205,6 +205,16 @@ export default function DashboardIndex({ success, info }) {
             <AdminLayout>
                 <Heading>KASIR</Heading>
 
+                <div
+                    className="mb-5 mt-5 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-200"
+                    role="alert"
+                >
+                    <p className="font-medium">
+                        Aplikasi tidak bisa digunakan lagi mulai tanggal <strong>01 Juni 2026</strong>. Silahkan lakukan perpanjangan
+                        untuk dapat melanjutkan penggunaan aplikasi ini.
+                    </p>
+                </div>
+
                 {info && (
                     <div
                         className="mb-5 mt-5 border-l-4 border-yellow-400 bg-yellow-50 p-4 text-yellow-700 dark:bg-yellow-950/40 dark:text-yellow-200"
