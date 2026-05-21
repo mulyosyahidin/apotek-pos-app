@@ -210,8 +210,10 @@ export default function DashboardIndex({ success, info }) {
                     role="alert"
                 >
                     <p className="font-medium">
-                        Aplikasi tidak bisa digunakan lagi mulai tanggal <strong>01 Juni 2026</strong>. Silahkan lakukan perpanjangan
-                        untuk dapat melanjutkan penggunaan aplikasi ini.
+                        Aplikasi tidak bisa digunakan lagi mulai tanggal{' '}
+                        <strong>01 Juni 2026</strong>. Silahkan lakukan
+                        perpanjangan untuk dapat melanjutkan penggunaan aplikasi
+                        ini.
                     </p>
                 </div>
 

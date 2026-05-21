@@ -81,6 +81,7 @@ RUN apk add --no-cache \
     icu \
     libzip \
     fcgi \
+    mysql-client \
     zip \
     unzip
 

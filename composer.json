@@ -7,14 +7,15 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "ext-curl": "*",
+        "ext-dom": "*",
+        "ext-libxml": "*",
+        "defstudio/telegraph": "^1.70",
         "inertiajs/inertia-laravel": "^2.0",
         "laravel/framework": "^11.31",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
-        "tightenco/ziggy": "^2.0",
-        "ext-dom": "*",
-        "ext-libxml": "*",
-        "ext-curl": "*"
+        "tightenco/ziggy": "^2.0"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.14",
