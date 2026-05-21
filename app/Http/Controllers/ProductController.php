@@ -23,7 +23,7 @@ class ProductController extends Controller
         $perPage = request('per_page', 10);
 
         $products = Product::when($searchQuery, function ($query, $searchQuery) {
-            return $query->where('name', 'LIKE', '%' . $searchQuery . '%');
+            return $query->where('name', 'LIKE', '%'.$searchQuery.'%');
         })
             ->with('productGroup', 'supplier')
             ->paginate($perPage);
@@ -71,10 +71,10 @@ class ProductController extends Controller
             'barcode_content' => 'nullable|string|max:64|unique:products,barcode_content',
             'name' => 'nullable|string|max:64',
             'stock' => 'required|integer|min:0',
-            'unit' => 'required|string|in:' . implode(',', \App\Enums\ProductUnit::values()),
-            'type' => 'required|string|in:' . implode(',', \App\Enums\ProductType::values()),
+            'unit' => 'required|string|in:'.implode(',', \App\Enums\ProductUnit::values()),
+            'type' => 'required|string|in:'.implode(',', \App\Enums\ProductType::values()),
             'expire_date' => 'nullable|date|after:today',
-            'status' => 'required|string|in:' . implode(',', \App\Enums\ProductStatus::values()),
+            'status' => 'required|string|in:'.implode(',', \App\Enums\ProductStatus::values()),
             'purchase_price' => 'required|numeric|min:0',
             'general_sell_price' => 'required|numeric|min:0',
             'medical_sell_price' => 'required|numeric|min:0',
@@ -146,10 +146,23 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-        $product->load('supplier', 'productGroup', 'stockHistories.user');
+        $product->load('supplier', 'productGroup');
+        $stockHistories = $product->stockHistories()
+            ->with('user')
+            ->latest()
+            ->paginate(15, ['*'], 'stock_page');
 
         return Inertia::render('Products/Show', [
             'product' => $product,
+            'stockHistories' => [
+                'items' => $stockHistories->items(),
+                'meta' => [
+                    'current_page' => $stockHistories->currentPage(),
+                    'total_pages' => $stockHistories->lastPage(),
+                    'per_page' => $stockHistories->perPage(),
+                    'total_items' => $stockHistories->total(),
+                ],
+            ],
             'success' => session('success'),
         ]);
     }
@@ -182,15 +195,15 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         $request->validate([
-            'batch_number' => 'required|string|max:20|unique:products,batch_number,' . $product->id,
-            'pbf_number' => 'required|string|max:64|unique:products,pbf_number,' . $product->id,
-            'barcode_content' => 'nullable|string|max:64|unique:products,barcode_content,' . $product->id,
+            'batch_number' => 'required|string|max:20|unique:products,batch_number,'.$product->id,
+            'pbf_number' => 'required|string|max:64|unique:products,pbf_number,'.$product->id,
+            'barcode_content' => 'nullable|string|max:64|unique:products,barcode_content,'.$product->id,
             'name' => 'nullable|string|max:64',
             'stock' => 'required|integer|min:0',
-            'unit' => 'required|string|in:' . implode(',', \App\Enums\ProductUnit::values()),
-            'type' => 'required|string|in:' . implode(',', \App\Enums\ProductType::values()),
+            'unit' => 'required|string|in:'.implode(',', \App\Enums\ProductUnit::values()),
+            'type' => 'required|string|in:'.implode(',', \App\Enums\ProductType::values()),
             'expire_date' => 'nullable|date|after:today',
-            'status' => 'required|string|in:' . implode(',', \App\Enums\ProductStatus::values()),
+            'status' => 'required|string|in:'.implode(',', \App\Enums\ProductStatus::values()),
             'purchase_price' => 'required|numeric|min:0',
             'general_sell_price' => 'required|numeric|min:0',
             'medical_sell_price' => 'required|numeric|min:0',
@@ -267,10 +280,10 @@ class ProductController extends Controller
             'stock_before' => $beforeStock,
             'stock_after' => $afterStock,
             'stock_change' => $stockChange,
-            'description' => 'User ' . $request->user()->name . ' melakukan update data',
+            'description' => 'User '.$request->user()->name.' melakukan update data',
         ]);
 
-        \Cache::forget('product-' . $product->id);
+        \Cache::forget('product-'.$product->id);
 
         return redirect()->back()->with('success', 'Berhasil memperbarui data produk');
     }

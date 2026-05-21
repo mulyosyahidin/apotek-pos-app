@@ -3,13 +3,13 @@
 namespace Database\Seeders;
 
 use Exception;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class RegionDataSeeder extends Seeder
 {
     /**
      * Run the database seeds.
+     *
      * @throws Exception
      */
     public function run(): void

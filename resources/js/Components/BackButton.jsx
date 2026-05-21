@@ -1,8 +1,13 @@
-import { ChevronLeftIcon } from "@heroicons/react/16/solid";
-import {Link, usePage} from "@inertiajs/react";
+import { ChevronLeftIcon } from '@heroicons/react/16/solid';
+import { Link, usePage } from '@inertiajs/react';
 import './BackButton.css';
 
-export default function BackButton({ link, text = 'Kembali', tooltip = 'Klik untuk kembali', ...props }) {
+export default function BackButton({
+    link,
+    text = 'Kembali',
+    tooltip = 'Klik untuk kembali',
+    ...props
+}) {
     return (
         <div className="tooltip-container relative inline-block">
             <Link

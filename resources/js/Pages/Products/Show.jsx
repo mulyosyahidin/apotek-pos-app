@@ -1,16 +1,52 @@
-import {Head, useForm} from "@inertiajs/react";
-import AdminLayout from "@/Layouts/AdminLayout";
-import BackButton from "@/Components/BackButton";
-import {Heading} from "@/Components/Catalyst/heading";
-import {Table, TableBody, TableCell, TableHead, TableRow} from "@/Components/Catalyst/table";
-import {formatDate, formatRupiah} from "@/utils.js";
-import {Button} from "@/Components/Catalyst/button";
-import {useEffect, useState} from "react";
-import {Dialog, DialogActions, DialogBody, DialogTitle} from "@/Components/Catalyst/dialog";
+import { Head, useForm } from '@inertiajs/react';
+import AdminLayout from '@/Layouts/AdminLayout';
+import BackButton from '@/Components/BackButton';
+import { Heading } from '@/Components/Catalyst/heading';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableRow,
+} from '@/Components/Catalyst/table';
+import { formatDate, formatRupiah } from '@/utils.js';
+import { Button } from '@/Components/Catalyst/button';
+import { useMemo, useState } from 'react';
+import {
+    Dialog,
+    DialogActions,
+    DialogBody,
+    DialogTitle,
+} from '@/Components/Catalyst/dialog';
+import {
+    Pagination,
+    PaginationList,
+    PaginationNext,
+    PaginationPage,
+    PaginationPrevious,
+} from '@/Components/Catalyst/pagination';
 
-export default function ProductShow({product, success}) {
-    const {delete: destroy, processing} = useForm();
+export default function ProductShow({ product, stockHistories, success }) {
+    const { delete: destroy, processing } = useForm();
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+    const paginationPages = useMemo(() => {
+        const totalPages = stockHistories.meta.total_pages;
+        const currentPage = stockHistories.meta.current_page;
+        const pages = [];
+
+        const lowerBound = Math.max(1, currentPage - 3);
+        const upperBound = Math.min(totalPages, currentPage + 3);
+
+        for (let page = lowerBound; page <= upperBound; page++) {
+            pages.push({
+                page,
+                isCurrent: currentPage === page,
+            });
+        }
+
+        return pages;
+    }, [stockHistories.meta]);
 
     const handleDelete = () => {
         destroy(route('products.destroy', product.id), {
@@ -20,21 +56,17 @@ export default function ProductShow({product, success}) {
         });
     };
 
-    useEffect(() => {
-        console.log(product.stock_histories)
-    }, []);
-
     return (
         <>
-            <Head title={product.name}/>
+            <Head title={product.name} />
 
             <AdminLayout>
-                <BackButton link={route('products.index')}/>
+                <BackButton link={route('products.index')} />
 
                 <Heading className={'mt-8'}>Data Produk</Heading>
 
                 {success && (
-                    <div className="mb-4 mt-2 text-sm font-medium text-green-600">
+                    <div className="mb-4 mt-2 text-sm font-medium text-green-600 dark:text-green-400">
                         {success}
                     </div>
                 )}
@@ -51,7 +83,11 @@ export default function ProductShow({product, success}) {
                         <TableRow key={2}>
                             <TableCell>Barang Utama</TableCell>
                             <TableCell>
-                                <strong>{product.product_group ? `${product.product_group.name} (${product.product_group.category})` : '-'}</strong>
+                                <strong>
+                                    {product.product_group
+                                        ? `${product.product_group.name} (${product.product_group.category})`
+                                        : '-'}
+                                </strong>
                             </TableCell>
                         </TableRow>
 
@@ -72,7 +108,9 @@ export default function ProductShow({product, success}) {
                         <TableRow key={5}>
                             <TableCell>Barcode</TableCell>
                             <TableCell>
-                                <strong>{product.barcode_content ?? '-'}</strong>
+                                <strong>
+                                    {product.barcode_content ?? '-'}
+                                </strong>
                             </TableCell>
                         </TableRow>
 
@@ -100,56 +138,80 @@ export default function ProductShow({product, success}) {
                         <TableRow key={9}>
                             <TableCell>Tanggal Kadaluarsa</TableCell>
                             <TableCell>
-                                <strong>{product.expire_date ? formatDate(product.expire_date) : '-'}</strong>
+                                <strong>
+                                    {product.expire_date
+                                        ? formatDate(product.expire_date)
+                                        : '-'}
+                                </strong>
                             </TableCell>
                         </TableRow>
 
                         <TableRow key={10}>
                             <TableCell>Supplier</TableCell>
                             <TableCell>
-                                <strong>{product.supplier ? product.supplier.name : '-'}</strong>
+                                <strong>
+                                    {product.supplier
+                                        ? product.supplier.name
+                                        : '-'}
+                                </strong>
                             </TableCell>
                         </TableRow>
 
                         <TableRow key={11}>
                             <TableCell>Status Jual</TableCell>
                             <TableCell>
-                                {
-                                    product.status === 'active' ? (
-                                        <span
-                                            className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">Aktif</span>
-                                    ) : (
-                                        <span
-                                            className="inline-flex items-center rounded-md bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-800 ring-1 ring-inset ring-yellow-600/20">Tidak Aktif</span>
-                                    )
-                                }
+                                {product.status === 'active' ? (
+                                    <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20 dark:bg-green-500/10 dark:text-green-300 dark:ring-green-500/30">
+                                        Aktif
+                                    </span>
+                                ) : (
+                                    <span className="inline-flex items-center rounded-md bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-800 ring-1 ring-inset ring-yellow-600/20 dark:bg-yellow-500/10 dark:text-yellow-200 dark:ring-yellow-500/30">
+                                        Tidak Aktif
+                                    </span>
+                                )}
                             </TableCell>
                         </TableRow>
 
                         <TableRow key={12}>
                             <TableCell>Harga Beli</TableCell>
                             <TableCell>
-                                <strong>{product.purchase_price ? formatRupiah(product.purchase_price) : '-'}</strong>
+                                <strong>
+                                    {product.purchase_price
+                                        ? formatRupiah(product.purchase_price)
+                                        : '-'}
+                                </strong>
                             </TableCell>
                         </TableRow>
 
                         <TableRow key={13}>
                             <TableCell>Harga Jual Umum</TableCell>
                             <TableCell>
-                                <strong>{product.general_sell_price ? formatRupiah(product.general_sell_price) : '-'}</strong>
+                                <strong>
+                                    {product.general_sell_price
+                                        ? formatRupiah(
+                                              product.general_sell_price,
+                                          )
+                                        : '-'}
+                                </strong>
                             </TableCell>
                         </TableRow>
 
                         <TableRow key={14}>
                             <TableCell>Harga Jual Medis</TableCell>
                             <TableCell>
-                                <strong>{product.medical_sell_price ? formatRupiah(product.medical_sell_price) : '-'}</strong>
+                                <strong>
+                                    {product.medical_sell_price
+                                        ? formatRupiah(
+                                              product.medical_sell_price,
+                                          )
+                                        : '-'}
+                                </strong>
                             </TableCell>
                         </TableRow>
                     </TableBody>
                 </Table>
 
-                <div className="flex justify-end gap-1 mt-5">
+                <div className="mt-5 flex justify-end gap-1">
                     <Button
                         href={route('products.edit', product.id)}
                         size="small"
@@ -174,6 +236,7 @@ export default function ProductShow({product, success}) {
                 <Table className="mt-8 [--gutter:theme(spacing.6)] lg:[--gutter:theme(spacing.10)]">
                     <TableHead>
                         <TableRow>
+                            <TableCell>#</TableCell>
                             <TableCell>User</TableCell>
                             <TableCell>Stok Sebelumnya</TableCell>
                             <TableCell>Stok Baru</TableCell>
@@ -183,35 +246,88 @@ export default function ProductShow({product, success}) {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {product.stock_histories.length > 0 ? (
-                            product.stock_histories.map((history) => (
+                        {stockHistories.items.length > 0 ? (
+                            stockHistories.items.map((history, index) => (
                                 <TableRow key={history.id}>
+                                    <TableCell>
+                                        {(stockHistories.meta.current_page -
+                                            1) *
+                                            stockHistories.meta.per_page +
+                                            index +
+                                            1}
+                                    </TableCell>
                                     <TableCell>{history.user.name}</TableCell>
-                                    <TableCell>{history.stock_before}</TableCell>
+                                    <TableCell>
+                                        {history.stock_before}
+                                    </TableCell>
                                     <TableCell>{history.stock_after}</TableCell>
                                     <TableCell>{history.stock_after}</TableCell>
                                     <TableCell>{history.description}</TableCell>
-                                    <TableCell>{formatDate(history.created_at)}</TableCell>
+                                    <TableCell>
+                                        {formatDate(history.created_at)}
+                                    </TableCell>
                                 </TableRow>
                             ))
                         ) : (
                             <TableRow>
-                                <TableCell colSpan={6} className="text-center">
+                                <TableCell colSpan={7} className="text-center">
                                     Tidak ada riwayat stok
                                 </TableCell>
                             </TableRow>
                         )}
                     </TableBody>
                 </Table>
+
+                {stockHistories.meta.total_items >
+                    stockHistories.meta.per_page && (
+                    <Pagination className="mt-6">
+                        <PaginationPrevious
+                            href={
+                                stockHistories.meta.current_page > 1
+                                    ? `?stock_page=${stockHistories.meta.current_page - 1}`
+                                    : null
+                            }
+                        />
+                        <PaginationList>
+                            {paginationPages.map(({ page, isCurrent }) => (
+                                <PaginationPage
+                                    key={page}
+                                    href={`?stock_page=${page}`}
+                                    current={isCurrent}
+                                >
+                                    {page}
+                                </PaginationPage>
+                            ))}
+                        </PaginationList>
+                        <PaginationNext
+                            href={
+                                stockHistories.meta.current_page <
+                                stockHistories.meta.total_pages
+                                    ? `?stock_page=${stockHistories.meta.current_page + 1}`
+                                    : null
+                            }
+                        />
+                    </Pagination>
+                )}
             </AdminLayout>
 
-            <Dialog open={isDeleteDialogOpen} onClose={() => setIsDeleteDialogOpen(false)}>
+            <Dialog
+                open={isDeleteDialogOpen}
+                onClose={() => setIsDeleteDialogOpen(false)}
+            >
                 <DialogTitle>Hapus Produk?</DialogTitle>
                 <DialogBody>
-                    <p>Yakin ingin menghapus produk ini? Tindakan ini tidak dapat dibatalkan!</p>
+                    <p className="text-sm text-zinc-600 dark:text-zinc-300">
+                        Yakin ingin menghapus produk ini? Tindakan ini tidak
+                        dapat dibatalkan!
+                    </p>
                 </DialogBody>
                 <DialogActions>
-                    <Button plain className="cursor-pointer" onClick={() => setIsDeleteDialogOpen(false)}>
+                    <Button
+                        plain
+                        className="cursor-pointer"
+                        onClick={() => setIsDeleteDialogOpen(false)}
+                    >
                         Batal
                     </Button>
                     <Button
@@ -224,5 +340,5 @@ export default function ProductShow({product, success}) {
                 </DialogActions>
             </Dialog>
         </>
-    )
+    );
 }

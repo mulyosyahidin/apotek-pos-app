@@ -26,8 +26,6 @@ class Transaction extends Model
 
     /**
      * Get the cashier that owns the Transaction
-     *
-     * @return BelongsTo
      */
     public function cashier(): BelongsTo
     {
@@ -36,8 +34,6 @@ class Transaction extends Model
 
     /**
      * Get all the items for the Transaction
-     *
-     * @return HasMany
      */
     public function items(): HasMany
     {

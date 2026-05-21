@@ -12,12 +12,12 @@ class ProductController extends Controller
     public function search(Request $request)
     {
         $request->validate([
-            'search' => 'nullable|string|min:1|max:100'
+            'search' => 'nullable|string|min:1|max:100',
         ]);
 
         $search = $request->input('search');
 
-        if (!$search) {
+        if (! $search) {
             return response()->json([]);
         }
 

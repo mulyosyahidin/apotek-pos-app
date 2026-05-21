@@ -25,8 +25,6 @@ class Province extends Model
 
     /**
      * Get all the regencies for the Province
-     *
-     * @return HasMany
      */
     public function regencies(): HasMany
     {

@@ -31,8 +31,6 @@ class Supplier extends Model
 
     /**
      * Get the province that owns the Supplier
-     *
-     * @return BelongsTo
      */
     public function province(): BelongsTo
     {
@@ -41,8 +39,6 @@ class Supplier extends Model
 
     /**
      * Get the regency that owns the Supplier
-     *
-     * @return BelongsTo
      */
     public function regency(): BelongsTo
     {

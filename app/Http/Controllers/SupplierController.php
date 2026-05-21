@@ -20,12 +20,12 @@ class SupplierController extends Controller
         $suppliers = Supplier::with('province', 'regency')
             ->when($searchQuery, function ($query, $searchQuery) {
                 return $query->where(function ($q) use ($searchQuery) {
-                    $q->where('name', 'LIKE', '%' . $searchQuery . '%')
+                    $q->where('name', 'LIKE', '%'.$searchQuery.'%')
                         ->orWhereHas('province', function ($q) use ($searchQuery) {
-                            $q->where('name', 'LIKE', '%' . $searchQuery . '%');
+                            $q->where('name', 'LIKE', '%'.$searchQuery.'%');
                         })
                         ->orWhereHas('regency', function ($q) use ($searchQuery) {
-                            $q->where('name', 'LIKE', '%' . $searchQuery . '%');
+                            $q->where('name', 'LIKE', '%'.$searchQuery.'%');
                         });
                 });
             })

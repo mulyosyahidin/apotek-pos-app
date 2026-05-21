@@ -18,7 +18,7 @@ class ProductGroupController extends Controller
         $perPage = request('per_page', 10);
 
         $productGroups = Product_group::when($searchQuery, function ($query, $searchQuery) {
-            return $query->where('name', 'LIKE', '%' . $searchQuery . '%');
+            return $query->where('name', 'LIKE', '%'.$searchQuery.'%');
         })
             ->paginate($perPage);
 
@@ -55,7 +55,7 @@ class ProductGroupController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:64',
-            'category' => 'nullable|string|in:' . implode(',', ProductGroupCategory::values()),
+            'category' => 'nullable|string|in:'.implode(',', ProductGroupCategory::values()),
         ], [
             'name.required' => 'Nama tidak boleh kosong',
             'name.string' => 'Nama harus berupa teks',
@@ -99,7 +99,7 @@ class ProductGroupController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:64',
-            'category' => 'nullable|string|in:' . implode(',', ProductGroupCategory::values()),
+            'category' => 'nullable|string|in:'.implode(',', ProductGroupCategory::values()),
         ], [
             'name.required' => 'Nama grup produk tidak boleh kosong',
             'name.string' => 'Nama grup produk harus berupa teks',

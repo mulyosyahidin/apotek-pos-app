@@ -1,8 +1,14 @@
-import {useEffect, useState, useRef, forwardRef, useImperativeHandle} from "react";
-import {Input} from "@/Components/Catalyst/input";
+import {
+    useEffect,
+    useState,
+    useRef,
+    forwardRef,
+    useImperativeHandle,
+} from 'react';
+import { Input } from '@/Components/Catalyst/input';
 
-const SupplierSelect = forwardRef(({value, onChange}, ref) => {
-    const [query, setQuery] = useState("");
+const SupplierSelect = forwardRef(({ value, onChange }, ref) => {
+    const [query, setQuery] = useState('');
     const [options, setOptions] = useState([]);
     const [loading, setLoading] = useState(false);
     const [showDropdown, setShowDropdown] = useState(false);
@@ -10,9 +16,9 @@ const SupplierSelect = forwardRef(({value, onChange}, ref) => {
 
     useImperativeHandle(ref, () => ({
         reset() {
-            setQuery("");
-            onChange("");
-        }
+            setQuery('');
+            onChange('');
+        },
     }));
 
     useEffect(() => {
@@ -31,13 +37,15 @@ const SupplierSelect = forwardRef(({value, onChange}, ref) => {
             setLoading(true);
 
             try {
-                const response = await fetch(route('api.suppliers.search', {search: query}));
+                const response = await fetch(
+                    route('api.suppliers.search', { search: query }),
+                );
                 const data = await response.json();
 
                 setOptions(data);
                 setShowDropdown(true);
             } catch (error) {
-                console.error("Error fetching data:", error);
+                console.error('Error fetching data:', error);
                 setOptions([]);
             }
             setLoading(false);
@@ -65,22 +73,28 @@ const SupplierSelect = forwardRef(({value, onChange}, ref) => {
                 className="w-full"
             />
 
-            {loading && <div className="absolute right-2 top-2 text-gray-500">Loading...</div>}
+            {loading && (
+                <div className="absolute right-2 top-2 text-gray-500 dark:text-zinc-400">
+                    Loading...
+                </div>
+            )}
 
             {showDropdown && (
-                <ul className="absolute w-full bg-white border border-gray-300 rounded-md mt-1 shadow-lg max-h-40 overflow-auto z-50">
+                <ul className="absolute z-50 mt-1 max-h-40 w-full overflow-auto rounded-md border border-gray-300 bg-white shadow-lg dark:border-white/10 dark:bg-zinc-800 dark:text-white">
                     {options.length > 0 ? (
                         options.map((item) => (
                             <li
                                 key={item.id}
-                                className="p-2 hover:bg-blue-100 cursor-pointer"
+                                className="cursor-pointer p-2 hover:bg-blue-100 dark:hover:bg-white/10"
                                 onClick={() => handleSelect(item)}
                             >
                                 {item.name}
                             </li>
                         ))
                     ) : (
-                        <li className="p-2 text-gray-500">Tidak ada hasil</li>
+                        <li className="p-2 text-gray-500 dark:text-zinc-400">
+                            Tidak ada hasil
+                        </li>
                     )}
                 </ul>
             )}

@@ -52,7 +52,7 @@ class CashierController extends Controller
 
             $currentStock = $getProduct->stock;
             if ($currentStock < $item['quantity']) {
-                return redirect()->back()->with('info', 'Stok produk ' . $getProduct->name . ' tidak mencukupi. Stok saat ini: ' . $currentStock);
+                return redirect()->back()->with('info', 'Stok produk '.$getProduct->name.' tidak mencukupi. Stok saat ini: '.$currentStock);
             }
         }
 
@@ -107,7 +107,7 @@ class CashierController extends Controller
                 'stock_before' => $beforeStock,
                 'stock_after' => $afterStock,
                 'stock_change' => $stockChange,
-                'description' => 'User ' . $request->user()->name . ' melakukan penjualan',
+                'description' => 'User '.$request->user()->name.' melakukan penjualan',
             ]);
         }
 
@@ -116,13 +116,13 @@ class CashierController extends Controller
 
     private function findProductById($productId)
     {
-        if (\Cache::has('product-' . $productId)) {
-            return \Cache::get('product-' . $productId);
+        if (\Cache::has('product-'.$productId)) {
+            return \Cache::get('product-'.$productId);
         }
 
         $product = Product::findOrFail($productId);
 
-        \Cache::put('product-' . $productId, $product, now()->addDay());
+        \Cache::put('product-'.$productId, $product, now()->addDay());
 
         return $product;
     }

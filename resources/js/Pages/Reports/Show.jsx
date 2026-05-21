@@ -1,12 +1,24 @@
-import {Head} from "@inertiajs/react";
-import AdminLayout from "@/Layouts/AdminLayout";
-import BackButton from "@/Components/BackButton";
-import {Heading, Subheading} from "@/Components/Catalyst/heading";
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/Components/Catalyst/table";
-import {formatDateWithTime, formatRupiah, transactionCustomerType, transactionPaymentType} from "@/utils.js";
-import {useEffect} from "react";
+import { Head } from '@inertiajs/react';
+import AdminLayout from '@/Layouts/AdminLayout';
+import BackButton from '@/Components/BackButton';
+import { Heading, Subheading } from '@/Components/Catalyst/heading';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/Components/Catalyst/table';
+import {
+    formatDateWithTime,
+    formatRupiah,
+    transactionCustomerType,
+    transactionPaymentType,
+} from '@/utils.js';
+import { useEffect } from 'react';
 
-export default function TransactionShow({transaction}) {
+export default function TransactionShow({ transaction }) {
     useEffect(() => {
         console.log(transaction);
     }, []);
@@ -15,11 +27,11 @@ export default function TransactionShow({transaction}) {
             <Head title="Laporan Penjualan" />
 
             <AdminLayout>
-                <BackButton link={route('reports.index')}/>
+                <BackButton link={route('reports.index')} />
 
                 <Heading className={'mt-8'}>Laporan Penjualan</Heading>
 
-                <Table className="mt-8 [--gutter:theme(spacing.6)] lg:[--gutter:theme(spacing.10)] mb-10">
+                <Table className="mb-10 mt-8 [--gutter:theme(spacing.6)] lg:[--gutter:theme(spacing.10)]">
                     <TableBody>
                         <TableRow key={1}>
                             <TableCell>Nama Pelanggan</TableCell>
@@ -31,14 +43,18 @@ export default function TransactionShow({transaction}) {
                         <TableRow key={2}>
                             <TableCell>No. HP Pelanggan</TableCell>
                             <TableCell>
-                                <strong>{transaction.customer_phone_number ?? '-'}</strong>
+                                <strong>
+                                    {transaction.customer_phone_number ?? '-'}
+                                </strong>
                             </TableCell>
                         </TableRow>
 
                         <TableRow key={3}>
                             <TableCell>Waktu Transaksi</TableCell>
                             <TableCell>
-                                <strong>{formatDateWithTime(transaction.date)}</strong>
+                                <strong>
+                                    {formatDateWithTime(transaction.date)}
+                                </strong>
                             </TableCell>
                         </TableRow>
 
@@ -52,7 +68,9 @@ export default function TransactionShow({transaction}) {
                         <TableRow key={5}>
                             <TableCell>Total Transaksi</TableCell>
                             <TableCell>
-                                <strong>{formatRupiah(transaction.total_price)}</strong>
+                                <strong>
+                                    {formatRupiah(transaction.total_price)}
+                                </strong>
                             </TableCell>
                         </TableRow>
 
@@ -66,14 +84,22 @@ export default function TransactionShow({transaction}) {
                         <TableRow key={7}>
                             <TableCell>Pembayaran</TableCell>
                             <TableCell>
-                                <strong>{transactionPaymentType(transaction.payment_type)}</strong>
+                                <strong>
+                                    {transactionPaymentType(
+                                        transaction.payment_type,
+                                    )}
+                                </strong>
                             </TableCell>
                         </TableRow>
 
                         <TableRow key={8}>
                             <TableCell>Jenis Pelanggan</TableCell>
                             <TableCell>
-                                <strong>{transactionCustomerType(transaction.customer_type)}</strong>
+                                <strong>
+                                    {transactionCustomerType(
+                                        transaction.customer_type,
+                                    )}
+                                </strong>
                             </TableCell>
                         </TableRow>
                     </TableBody>
@@ -91,20 +117,24 @@ export default function TransactionShow({transaction}) {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {
-                            transaction.items.map((item, index) => (
-                                <TableRow key={index}>
-                                    <TableCell>{index + 1}</TableCell>
-                                    <TableCell>{item.product.name}</TableCell>
-                                    <TableCell>{formatRupiah(item.price)}</TableCell>
-                                    <TableCell>{item.quantity} {item.unit}</TableCell>
-                                    <TableCell>{formatRupiah(item.price * item.quantity)}</TableCell>
-                                </TableRow>
-                            ))
-                        }
+                        {transaction.items.map((item, index) => (
+                            <TableRow key={index}>
+                                <TableCell>{index + 1}</TableCell>
+                                <TableCell>{item.product.name}</TableCell>
+                                <TableCell>
+                                    {formatRupiah(item.price)}
+                                </TableCell>
+                                <TableCell>
+                                    {item.quantity} {item.unit}
+                                </TableCell>
+                                <TableCell>
+                                    {formatRupiah(item.price * item.quantity)}
+                                </TableCell>
+                            </TableRow>
+                        ))}
                     </TableBody>
                 </Table>
             </AdminLayout>
         </>
-    )
+    );
 }

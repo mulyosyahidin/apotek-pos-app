@@ -35,8 +35,6 @@ class Product extends Model
 
     /**
      * Get the supplier that owns the Product
-     *
-     * @return BelongsTo
      */
     public function supplier(): BelongsTo
     {
@@ -45,8 +43,6 @@ class Product extends Model
 
     /**
      * Get the product group that owns the Product
-     *
-     * @return BelongsTo
      */
     public function productGroup(): BelongsTo
     {
@@ -55,8 +51,6 @@ class Product extends Model
 
     /**
      * Get all of the stock histories for the Product
-     *
-     * @return HasMany
      */
     public function stockHistories(): HasMany
     {

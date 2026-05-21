@@ -20,7 +20,7 @@
 }
 
 .tooltip-text::after {
-    content: "";
+    content: '';
     position: absolute;
     top: 100%; /* Arrow points down */
     left: 50%;

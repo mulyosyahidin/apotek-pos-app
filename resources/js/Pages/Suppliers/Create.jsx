@@ -1,16 +1,16 @@
-import {Head, useForm} from "@inertiajs/react";
-import AdminLayout from "@/Layouts/AdminLayout";
-import BackButton from "@/Components/BackButton";
-import {Heading, Subheading} from "@/Components/Catalyst/heading";
-import {Divider} from "@/Components/Catalyst/divider";
-import {Input} from "@/Components/Catalyst/input";
-import InputError from "@/Components/InputError";
-import {Textarea} from "@/Components/Catalyst/textarea";
-import {Button} from "@/Components/Catalyst/button";
-import {useState} from "react";
+import { Head, useForm } from '@inertiajs/react';
+import AdminLayout from '@/Layouts/AdminLayout';
+import BackButton from '@/Components/BackButton';
+import { Heading, Subheading } from '@/Components/Catalyst/heading';
+import { Divider } from '@/Components/Catalyst/divider';
+import { Input } from '@/Components/Catalyst/input';
+import InputError from '@/Components/InputError';
+import { Textarea } from '@/Components/Catalyst/textarea';
+import { Button } from '@/Components/Catalyst/button';
+import { useState } from 'react';
 
-export default function SuppliersCreate({provinces, regencies, success}) {
-    const {data, setData, post, processing, errors, reset} = useForm({
+export default function SuppliersCreate({ provinces, regencies, success }) {
+    const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
         address: '',
         province_id: '',
@@ -18,16 +18,16 @@ export default function SuppliersCreate({provinces, regencies, success}) {
         phone_number: '',
         email: '',
         status: 'active',
-    })
+    });
 
     const handleChange = (e) => {
-        const {name, value} = e.target;
+        const { name, value } = e.target;
 
         setData((prevData) => ({
             ...prevData,
             [name]: value,
         }));
-    }
+    };
 
     const [filteredRegencies, setFilteredRegencies] = useState([]);
     const [isRegencyLoading, setIsRegencyLoading] = useState(false);
@@ -43,13 +43,15 @@ export default function SuppliersCreate({provinces, regencies, success}) {
             province_id: provinceId,
         }));
 
-        const filterRegencies = regencies.filter((regency) => regency.province_id == provinceId);
+        const filterRegencies = regencies.filter(
+            (regency) => regency.province_id == provinceId,
+        );
 
         setTimeout(() => {
             setFilteredRegencies(filterRegencies);
             setIsRegencyLoading(false);
         }, 1000);
-    }
+    };
 
     const submit = (e) => {
         e.preventDefault();
@@ -59,53 +61,74 @@ export default function SuppliersCreate({provinces, regencies, success}) {
                 reset();
             },
         });
-    }
+    };
 
     return (
         <>
-            <Head title="Tambah Supplier"/>
+            <Head title="Tambah Supplier" />
 
             <AdminLayout>
                 <div>
-                    <BackButton link={route('suppliers.index')}/>
+                    <BackButton link={route('suppliers.index')} />
 
-                    <form method="post" className="mx-auto mt-10" onSubmit={submit}>
+                    <form
+                        method="post"
+                        className="mx-auto mt-10"
+                        onSubmit={submit}
+                    >
                         <Heading>Tambah Supplier Baru</Heading>
 
                         {success && (
-                            <div className="mb-4 mt-2 text-sm font-medium text-green-600">
+                            <div className="mb-4 mt-2 text-sm font-medium text-green-600 dark:text-green-400">
                                 {success}
                             </div>
                         )}
-                        <Divider className="my-10 mt-6"/>
+                        <Divider className="my-10 mt-6" />
 
                         <section className="grid gap-x-8 gap-y-6 sm:grid-cols-2">
                             <div className="space-y-1">
                                 <Subheading>
-                                    Nama <span className="text-red-500 font-bold">*</span>
+                                    Nama{' '}
+                                    <span className="font-bold text-red-500">
+                                        *
+                                    </span>
                                 </Subheading>
                             </div>
                             <div>
-                                <Input aria-label="Nama supplier" name="name" value={data.name}
-                                       onChange={handleChange}/>
-                                <InputError message={errors.name} className="mt-2"/>
+                                <Input
+                                    aria-label="Nama supplier"
+                                    name="name"
+                                    value={data.name}
+                                    onChange={handleChange}
+                                />
+                                <InputError
+                                    message={errors.name}
+                                    className="mt-2"
+                                />
                             </div>
                         </section>
 
-                        <Divider className="my-10" soft/>
+                        <Divider className="my-10" soft />
 
                         <section className="grid gap-x-8 gap-y-6 sm:grid-cols-2">
                             <div className="space-y-1">
                                 <Subheading>Alamat</Subheading>
                             </div>
                             <div>
-                                <Textarea aria-label="Alamat supplier" name="address" value={data.address}
-                                          onChange={handleChange}/>
-                                <InputError message={errors.address} className="mt-2"/>
+                                <Textarea
+                                    aria-label="Alamat supplier"
+                                    name="address"
+                                    value={data.address}
+                                    onChange={handleChange}
+                                />
+                                <InputError
+                                    message={errors.address}
+                                    className="mt-2"
+                                />
                             </div>
                         </section>
 
-                        <Divider className="my-10" soft/>
+                        <Divider className="my-10" soft />
 
                         <section className="grid gap-x-8 gap-y-6 sm:grid-cols-2">
                             <div className="space-y-1">
@@ -116,20 +139,26 @@ export default function SuppliersCreate({provinces, regencies, success}) {
                                     name="province_id"
                                     value={data.province_id}
                                     onChange={handleProvinceChange}
-                                    className="block w-full mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                    className="mt-1 block w-full rounded-md border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-white/10 dark:bg-white/5 dark:text-white dark:*:bg-zinc-800 dark:*:text-white sm:text-sm"
                                 >
                                     <option value="">Pilih Provinsi</option>
                                     {provinces.map((province) => (
-                                        <option key={province.id} value={province.id}>
+                                        <option
+                                            key={province.id}
+                                            value={province.id}
+                                        >
                                             {province.name}
                                         </option>
                                     ))}
                                 </select>
-                                <InputError message={errors.province_id} className="mt-2"/>
+                                <InputError
+                                    message={errors.province_id}
+                                    className="mt-2"
+                                />
                             </div>
                         </section>
 
-                        <Divider className="my-10" soft/>
+                        <Divider className="my-10" soft />
 
                         <section className="grid gap-x-8 gap-y-6 sm:grid-cols-2">
                             <div className="space-y-1">
@@ -140,52 +169,74 @@ export default function SuppliersCreate({provinces, regencies, success}) {
                                     name="regency_id"
                                     value={data.regency_id}
                                     onChange={handleChange}
-                                    className="block w-full mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                    className="mt-1 block w-full rounded-md border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-white/10 dark:bg-white/5 dark:text-white dark:*:bg-zinc-800 dark:*:text-white sm:text-sm"
                                 >
-                                    <option value="">Pilih Kabupaten / Kota</option>
+                                    <option value="">
+                                        Pilih Kabupaten / Kota
+                                    </option>
                                     {filteredRegencies.map((regency) => (
-                                        <option key={regency.id} value={regency.id}>
+                                        <option
+                                            key={regency.id}
+                                            value={regency.id}
+                                        >
                                             {regency.name}
                                         </option>
                                     ))}
                                 </select>
-                                <InputError message={errors.regency_id} className="mt-2"/>
+                                <InputError
+                                    message={errors.regency_id}
+                                    className="mt-2"
+                                />
 
-                                {
-                                    isRegencyLoading && (
-                                        <p className="mt-2 text-sm text-gray-500">Loading...</p>
-                                    )
-                                }
+                                {isRegencyLoading && (
+                                    <p className="mt-2 text-sm text-gray-500 dark:text-zinc-400">
+                                        Loading...
+                                    </p>
+                                )}
                             </div>
                         </section>
 
-                        <Divider className="my-10" soft/>
+                        <Divider className="my-10" soft />
 
                         <section className="grid gap-x-8 gap-y-6 sm:grid-cols-2">
                             <div className="space-y-1">
                                 <Subheading>No. HP</Subheading>
                             </div>
                             <div>
-                                <Input aria-label="No. HP supplier" name="phone_number" value={data.phone_number}
-                                       onChange={handleChange}/>
-                                <InputError message={errors.phone_number} className="mt-2"/>
+                                <Input
+                                    aria-label="No. HP supplier"
+                                    name="phone_number"
+                                    value={data.phone_number}
+                                    onChange={handleChange}
+                                />
+                                <InputError
+                                    message={errors.phone_number}
+                                    className="mt-2"
+                                />
                             </div>
                         </section>
 
-                        <Divider className="my-10" soft/>
+                        <Divider className="my-10" soft />
 
                         <section className="grid gap-x-8 gap-y-6 sm:grid-cols-2">
                             <div className="space-y-1">
                                 <Subheading>Email</Subheading>
                             </div>
                             <div>
-                                <Input aria-label="Email supplier" name="email" value={data.email}
-                                       onChange={handleChange}/>
-                                <InputError message={errors.email} className="mt-2"/>
+                                <Input
+                                    aria-label="Email supplier"
+                                    name="email"
+                                    value={data.email}
+                                    onChange={handleChange}
+                                />
+                                <InputError
+                                    message={errors.email}
+                                    className="mt-2"
+                                />
                             </div>
                         </section>
 
-                        <Divider className="my-10" soft/>
+                        <Divider className="my-10" soft />
 
                         <section className="grid gap-x-8 gap-y-6 sm:grid-cols-2">
                             <div className="space-y-1">
@@ -196,7 +247,7 @@ export default function SuppliersCreate({provinces, regencies, success}) {
                                     name="status"
                                     value={data.status}
                                     onChange={handleChange}
-                                    className="block w-full mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                    className="mt-1 block w-full rounded-md border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-white/10 dark:bg-white/5 dark:text-white dark:*:bg-zinc-800 dark:*:text-white sm:text-sm"
                                 >
                                     <option value="">Pilih Status</option>
                                     <option key="active" value="active">
@@ -206,24 +257,36 @@ export default function SuppliersCreate({provinces, regencies, success}) {
                                         Tidak Aktif
                                     </option>
                                 </select>
-                                <InputError message={errors.status} className="mt-2"/>
+                                <InputError
+                                    message={errors.status}
+                                    className="mt-2"
+                                />
                             </div>
                         </section>
 
-                        <Divider className="my-10" soft/>
+                        <Divider className="my-10" soft />
 
                         <div className="flex justify-end gap-4">
-                            {
-                                processing ? (
-                                    <Button type="submit" className={'cursor-not-allowed'} disabled>Simpan</Button>
-                                ) : (
-                                    <Button type="submit" className={'cursor-pointer'}>Simpan</Button>
-                                )
-                            }
+                            {processing ? (
+                                <Button
+                                    type="submit"
+                                    className={'cursor-not-allowed'}
+                                    disabled
+                                >
+                                    Simpan
+                                </Button>
+                            ) : (
+                                <Button
+                                    type="submit"
+                                    className={'cursor-pointer'}
+                                >
+                                    Simpan
+                                </Button>
+                            )}
                         </div>
                     </form>
                 </div>
             </AdminLayout>
         </>
-    )
+    );
 }

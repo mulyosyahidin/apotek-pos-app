@@ -26,8 +26,6 @@ class Regency extends Model
 
     /**
      * Get the province that owns the Regency
-     *
-     * @return BelongsTo
      */
     public function province(): BelongsTo
     {

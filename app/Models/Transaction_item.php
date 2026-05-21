@@ -30,8 +30,6 @@ class Transaction_item extends Model
 
     /**
      * Get the transaction that owns the Transaction_item
-     *
-     * @return BelongsTo
      */
     public function product(): BelongsTo
     {
@@ -40,13 +38,11 @@ class Transaction_item extends Model
 
     /**
      * Get sub-total attribute
-     *
-     * @return Attribute
      */
     public function subTotal(): Attribute
     {
         return Attribute::make(
-            get: fn($value) => $this->price * $this->quantity,
+            get: fn ($value) => $this->price * $this->quantity,
         );
     }
 }

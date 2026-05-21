@@ -4,7 +4,8 @@ namespace App\Enums;
 
 use App\Traits\EnumToArray;
 
-enum StockTransactionType: string {
+enum StockTransactionType: string
+{
     use EnumToArray;
 
     case SALE = 'sale';
