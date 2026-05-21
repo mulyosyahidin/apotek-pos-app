@@ -7,6 +7,7 @@ import { formatRupiah } from '@/utils.js';
 import {
     BanknotesIcon,
     PhoneIcon,
+    PlusIcon,
     UserIcon,
     UsersIcon,
 } from '@heroicons/react/24/outline';
@@ -385,8 +386,8 @@ export default function DashboardIndex({ success, info }) {
                             />
                         </div>
 
-                        <div className="grid gap-x-4 gap-y-5 sm:grid-cols-5">
-                            <div className="col-span-4">
+                        <div className="grid grid-cols-[minmax(0,1fr)_theme(spacing.11)] gap-x-3 gap-y-5 sm:grid-cols-[minmax(0,1fr)_theme(spacing.11)] xl:grid-cols-5">
+                            <div className="min-w-0 xl:col-span-4">
                                 <Subheading className="mb-2">
                                     Jumlah
                                     {tempMaxStock > 0 && (
@@ -404,12 +405,19 @@ export default function DashboardIndex({ success, info }) {
                                 />
                             </div>
 
-                            <div className="col-span-1 flex items-end">
+                            <div className="flex items-end xl:col-span-1">
                                 <Button
-                                    className="w-full cursor-pointer"
+                                    aria-label="Tambah produk"
+                                    className="flex h-10 w-11 shrink-0 cursor-pointer items-center justify-center px-0 xl:w-full xl:px-3"
                                     onClick={handleAddItem}
                                 >
-                                    Tambah
+                                    <PlusIcon
+                                        aria-hidden="true"
+                                        className="size-5 xl:hidden"
+                                    />
+                                    <span className="hidden xl:inline">
+                                        Tambah
+                                    </span>
                                 </Button>
                             </div>
                         </div>

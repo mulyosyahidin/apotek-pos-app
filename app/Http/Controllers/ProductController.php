@@ -6,6 +6,7 @@ use App\Enums\ProductStatus;
 use App\Enums\ProductType;
 use App\Enums\ProductUnit;
 use App\Enums\StockTransactionType;
+use App\Enums\UserRole;
 use App\Models\Product;
 use App\Models\Product_stock_history;
 use App\Models\Supplier;
@@ -147,14 +148,18 @@ class ProductController extends Controller
     public function show(Product $product)
     {
         $product->load('supplier', 'productGroup');
-        $stockHistories = $product->stockHistories()
-            ->with('user')
-            ->latest()
-            ->paginate(15, ['*'], 'stock_page');
+        $isAdmin = request()->user()->role === UserRole::ADMIN;
+
+        $stockHistories = $isAdmin
+            ? $product->stockHistories()
+                ->with('user')
+                ->latest()
+                ->paginate(15, ['*'], 'stock_page')
+            : null;
 
         return Inertia::render('Products/Show', [
             'product' => $product,
-            'stockHistories' => [
+            'stockHistories' => $stockHistories ? [
                 'items' => $stockHistories->items(),
                 'meta' => [
                     'current_page' => $stockHistories->currentPage(),
@@ -162,7 +167,7 @@ class ProductController extends Controller
                     'per_page' => $stockHistories->perPage(),
                     'total_items' => $stockHistories->total(),
                 ],
-            ],
+            ] : null,
             'success' => session('success'),
         ]);
     }

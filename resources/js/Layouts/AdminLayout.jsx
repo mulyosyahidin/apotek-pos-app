@@ -20,6 +20,7 @@ import {
     TagIcon,
     RocketLaunchIcon,
     CubeIcon,
+    UserGroupIcon,
 } from '@heroicons/react/20/solid';
 import { useEffect, useState } from 'react';
 import { SidebarLayout } from '@/Layouts/Includes/SidebarLayout';
@@ -64,6 +65,7 @@ function AccountDropdownMenu({ anchor, isDarkMode, onSwitchMode }) {
 export default function AdminLayout({ children }) {
     let pathname = window.location.pathname;
     const { auth } = usePage().props;
+    const isAdmin = auth.user.role === 'admin';
     const [isDarkMode, setIsDarkMode] = useState(false);
 
     useEffect(() => {
@@ -128,19 +130,31 @@ export default function AdminLayout({ children }) {
                             </SidebarItem>
                         </SidebarSection>
 
-                        <SidebarSection>
-                            <SidebarHeading>Laporan</SidebarHeading>
-                            <SidebarItem
-                                href={route('reports.index')}
-                                current={pathname.startsWith('/reports')}
-                            >
-                                <ChartPieIcon />
-                                <SidebarLabel>Laporan</SidebarLabel>
-                            </SidebarItem>
-                        </SidebarSection>
+                        {isAdmin && (
+                            <SidebarSection>
+                                <SidebarHeading>Laporan</SidebarHeading>
+                                <SidebarItem
+                                    href={route('reports.index')}
+                                    current={pathname.startsWith('/reports')}
+                                >
+                                    <ChartPieIcon />
+                                    <SidebarLabel>Laporan</SidebarLabel>
+                                </SidebarItem>
+                            </SidebarSection>
+                        )}
 
                         <SidebarSection>
                             <SidebarHeading>Master Data</SidebarHeading>
+                            {isAdmin && (
+                                <SidebarItem
+                                    href={route('cashiers.index')}
+                                    current={pathname.startsWith('/cashiers')}
+                                >
+                                    <UserGroupIcon />
+                                    <SidebarLabel>Kasir</SidebarLabel>
+                                </SidebarItem>
+                            )}
+
                             <SidebarItem
                                 href={route('product-groups.index')}
                                 current={pathname.startsWith('/product-groups')}
@@ -157,13 +171,15 @@ export default function AdminLayout({ children }) {
                                 <SidebarLabel>Produk</SidebarLabel>
                             </SidebarItem>
 
-                            <SidebarItem
-                                href={route('suppliers.index')}
-                                current={pathname.startsWith('/suppliers')}
-                            >
-                                <CubeIcon />
-                                <SidebarLabel>Supplier</SidebarLabel>
-                            </SidebarItem>
+                            {isAdmin && (
+                                <SidebarItem
+                                    href={route('suppliers.index')}
+                                    current={pathname.startsWith('/suppliers')}
+                                >
+                                    <CubeIcon />
+                                    <SidebarLabel>Supplier</SidebarLabel>
+                                </SidebarItem>
+                            )}
                         </SidebarSection>
                     </SidebarBody>
 

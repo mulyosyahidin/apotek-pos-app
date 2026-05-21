@@ -29,8 +29,13 @@ import {
 export default function ProductShow({ product, stockHistories, success }) {
     const { delete: destroy, processing } = useForm();
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const canViewStockHistories = Boolean(stockHistories);
 
     const paginationPages = useMemo(() => {
+        if (!stockHistories) {
+            return [];
+        }
+
         const totalPages = stockHistories.meta.total_pages;
         const currentPage = stockHistories.meta.current_page;
         const pages = [];
@@ -46,7 +51,7 @@ export default function ProductShow({ product, stockHistories, success }) {
         }
 
         return pages;
-    }, [stockHistories.meta]);
+    }, [stockHistories]);
 
     const handleDelete = () => {
         destroy(route('products.destroy', product.id), {
@@ -231,83 +236,106 @@ export default function ProductShow({ product, stockHistories, success }) {
                     </Button>
                 </div>
 
-                <Heading className={'mt-8'}>Riwayat Stok</Heading>
+                {canViewStockHistories && (
+                    <>
+                        <Heading className={'mt-8'}>Riwayat Stok</Heading>
 
-                <Table className="mt-8 [--gutter:theme(spacing.6)] lg:[--gutter:theme(spacing.10)]">
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>#</TableCell>
-                            <TableCell>User</TableCell>
-                            <TableCell>Stok Sebelumnya</TableCell>
-                            <TableCell>Stok Baru</TableCell>
-                            <TableCell>Perubahan</TableCell>
-                            <TableCell>Keterangan</TableCell>
-                            <TableCell>Tanggal</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {stockHistories.items.length > 0 ? (
-                            stockHistories.items.map((history, index) => (
-                                <TableRow key={history.id}>
-                                    <TableCell>
-                                        {(stockHistories.meta.current_page -
-                                            1) *
-                                            stockHistories.meta.per_page +
-                                            index +
-                                            1}
-                                    </TableCell>
-                                    <TableCell>{history.user.name}</TableCell>
-                                    <TableCell>
-                                        {history.stock_before}
-                                    </TableCell>
-                                    <TableCell>{history.stock_after}</TableCell>
-                                    <TableCell>{history.stock_after}</TableCell>
-                                    <TableCell>{history.description}</TableCell>
-                                    <TableCell>
-                                        {formatDate(history.created_at)}
-                                    </TableCell>
+                        <Table className="mt-8 [--gutter:theme(spacing.6)] lg:[--gutter:theme(spacing.10)]">
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>#</TableCell>
+                                    <TableCell>User</TableCell>
+                                    <TableCell>Stok Sebelumnya</TableCell>
+                                    <TableCell>Stok Baru</TableCell>
+                                    <TableCell>Perubahan</TableCell>
+                                    <TableCell>Keterangan</TableCell>
+                                    <TableCell>Tanggal</TableCell>
                                 </TableRow>
-                            ))
-                        ) : (
-                            <TableRow>
-                                <TableCell colSpan={7} className="text-center">
-                                    Tidak ada riwayat stok
-                                </TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
+                            </TableHead>
+                            <TableBody>
+                                {stockHistories.items.length > 0 ? (
+                                    stockHistories.items.map(
+                                        (history, index) => (
+                                            <TableRow key={history.id}>
+                                                <TableCell>
+                                                    {(stockHistories.meta
+                                                        .current_page -
+                                                        1) *
+                                                        stockHistories.meta
+                                                            .per_page +
+                                                        index +
+                                                        1}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {history.user.name}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {history.stock_before}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {history.stock_after}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {history.stock_change}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {history.description}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {formatDate(
+                                                        history.created_at,
+                                                    )}
+                                                </TableCell>
+                                            </TableRow>
+                                        ),
+                                    )
+                                ) : (
+                                    <TableRow>
+                                        <TableCell
+                                            colSpan={7}
+                                            className="text-center"
+                                        >
+                                            Tidak ada riwayat stok
+                                        </TableCell>
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
 
-                {stockHistories.meta.total_items >
-                    stockHistories.meta.per_page && (
-                    <Pagination className="mt-6">
-                        <PaginationPrevious
-                            href={
-                                stockHistories.meta.current_page > 1
-                                    ? `?stock_page=${stockHistories.meta.current_page - 1}`
-                                    : null
-                            }
-                        />
-                        <PaginationList>
-                            {paginationPages.map(({ page, isCurrent }) => (
-                                <PaginationPage
-                                    key={page}
-                                    href={`?stock_page=${page}`}
-                                    current={isCurrent}
-                                >
-                                    {page}
-                                </PaginationPage>
-                            ))}
-                        </PaginationList>
-                        <PaginationNext
-                            href={
-                                stockHistories.meta.current_page <
-                                stockHistories.meta.total_pages
-                                    ? `?stock_page=${stockHistories.meta.current_page + 1}`
-                                    : null
-                            }
-                        />
-                    </Pagination>
+                        {stockHistories.meta.total_items >
+                            stockHistories.meta.per_page && (
+                            <Pagination className="mt-6">
+                                <PaginationPrevious
+                                    href={
+                                        stockHistories.meta.current_page > 1
+                                            ? `?stock_page=${stockHistories.meta.current_page - 1}`
+                                            : null
+                                    }
+                                />
+                                <PaginationList>
+                                    {paginationPages.map(
+                                        ({ page, isCurrent }) => (
+                                            <PaginationPage
+                                                key={page}
+                                                href={`?stock_page=${page}`}
+                                                current={isCurrent}
+                                            >
+                                                {page}
+                                            </PaginationPage>
+                                        ),
+                                    )}
+                                </PaginationList>
+                                <PaginationNext
+                                    href={
+                                        stockHistories.meta.current_page <
+                                        stockHistories.meta.total_pages
+                                            ? `?stock_page=${stockHistories.meta.current_page + 1}`
+                                            : null
+                                    }
+                                />
+                            </Pagination>
+                        )}
+                    </>
                 )}
             </AdminLayout>
 
