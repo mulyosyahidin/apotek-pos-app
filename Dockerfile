@@ -1,8 +1,26 @@
-# Stage 1: Build environment and Composer dependencies
+# Set environment variable for Node.js version
+ARG NODE_VERSION=22.14.0
+
+# Stage 1: Build frontend assets with PNPM
+FROM node:${NODE_VERSION}-alpine AS frontend
+
+WORKDIR /app
+
+COPY package.json pnpm-lock.yaml ./
+
+RUN corepack enable \
+    && corepack prepare pnpm@10.33.2 --activate \
+    && pnpm install --frozen-lockfile
+
+COPY resources ./resources
+COPY public ./public
+COPY jsconfig.json postcss.config.js tailwind.config.js vite.config.js ./
+
+RUN pnpm build
+
+# Stage 2: Build environment and Composer dependencies
 FROM php:8.3.2-fpm-alpine AS builder
 
-# Set environment variable for Node.js version
-ENV NODE_VERSION=22.14.0
 LABEL maintainer="Martin Mulyo Syahidin"
 
 # Install system dependencies and PHP extensions required for Laravel + MySQL
@@ -18,8 +36,6 @@ RUN apk add --no-cache \
     autoconf \
     g++ \
     make \
-    nodejs \
-    npm \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install \
     pdo_mysql \
@@ -50,20 +66,14 @@ COPY composer.json composer.lock ./
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
     && composer install --no-dev --optimize-autoloader --no-interaction --no-progress --prefer-dist --no-scripts
 
-# Copy NPM files
-COPY package.json package-lock.json ./
-
-# Install NPM dependencies
-RUN npm install
-
 # Copy application files
 COPY . .
 
 # Optimize autoload
 RUN composer dump-autoload --optimize
 
-# Build assets for production
-RUN npm run build
+# Copy frontend build assets
+COPY --from=frontend /app/public/build /var/www/html/public/build
 
 # Set correct permissions
 RUN chown -R www-data:www-data /var/www/html \
