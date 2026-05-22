@@ -10,27 +10,33 @@ else
   echo "Storage directory already initialized."
 fi
 
-# Check and create directories only if they don't exist
-mkdir -p /var/www/html/storage/app/private/temp-member-kta
-mkdir -p /var/www/html/storage/app/private/temp-profile-picture
-mkdir -p /var/www/html/storage/app/private/temp-qr-code
-
 # Remove storage-init directory
 rm -rf /var/www/html/storage-init
 
-# Run Laravel migrations
-echo "Running migrations..."
-php artisan migrate --force
+# Run tasks only for the main app container
+if [ "$1" = "php-fpm" ]; then
+  # Run Laravel migrations
+  echo "Running migrations..."
+  php artisan migrate --force
 
-# Clear and cache configurations
-echo "Cache configurations..."
-php artisan config:cache
+  # Seed the database
+  echo "Seeding database..."
+  php artisan db:seed --force
 
-echo "Cache routes..."
-php artisan route:cache
+  # Clear application cache
+  echo "Clearing cache..."
+  php artisan cache:clear
 
-# Create symbolic link for storage
-php artisan storage:link
+  # Clear and cache configurations
+  echo "Cache configurations..."
+  php artisan config:cache
+
+  echo "Cache routes..."
+  php artisan route:cache
+
+  # Create symbolic link for storage
+  php artisan storage:link
+fi
 
 # Run the default command
 exec "$@"

@@ -1,31 +1,11 @@
-# Set environment variable for Node.js version
-ARG NODE_VERSION=22.14.0
+# Stage 1: Build environment and Composer dependencies
+FROM php:8.3-fpm-alpine3.21 AS builder
 
-# Stage 1: Build frontend assets with PNPM
-FROM node:${NODE_VERSION}-alpine AS frontend
+ENV PNPM_VERSION=10.33.2
 
-WORKDIR /app
-
-COPY package.json pnpm-lock.yaml ./
-
-RUN corepack enable \
-    && corepack prepare pnpm@10.33.2 --activate \
-    && pnpm install --frozen-lockfile
-
-COPY resources ./resources
-COPY public ./public
-COPY jsconfig.json postcss.config.js tailwind.config.js vite.config.js ./
-
-RUN pnpm build
-
-# Stage 2: Build environment and Composer dependencies
-FROM php:8.3.2-fpm-alpine AS builder
-
-LABEL maintainer="Martin Mulyo Syahidin"
-
-# Install system dependencies and PHP extensions required for Laravel + MySQL
 RUN apk add --no-cache \
     curl \
+    ca-certificates \
     unzip \
     libpng-dev \
     libjpeg-turbo-dev \
@@ -33,18 +13,26 @@ RUN apk add --no-cache \
     libxml2-dev \
     icu-dev \
     libzip-dev \
+    mariadb-dev \
     autoconf \
     g++ \
     make \
+    nodejs \
+    npm \
+    mysql-client \
+    && npm install --global pnpm@${PNPM_VERSION} \
+    && node --version \
+    && npm --version \
+    && pnpm --version \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install \
-    pdo_mysql \
-    opcache \
-    intl \
-    zip \
-    bcmath \
-    soap \
-    gd \
+        pdo_mysql \
+        opcache \
+        intl \
+        zip \
+        bcmath \
+        soap \
+        gd \
     && pecl install redis \
     && docker-php-ext-enable redis
 
@@ -52,8 +40,8 @@ RUN apk add --no-cache \
 ARG UID=1000
 ARG GID=1000
 RUN if ! id -u www-data >/dev/null 2>&1; then \
-      addgroup -g $GID www-data && \
-      adduser -u $UID -G www-data -D www-data; \
+    addgroup -g $GID www-data && \
+    adduser -u $UID -G www-data -D www-data; \
     fi
 
 # Set working directory
@@ -66,21 +54,27 @@ COPY composer.json composer.lock ./
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
     && composer install --no-dev --optimize-autoloader --no-interaction --no-progress --prefer-dist --no-scripts
 
+# Copy PNPM files
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+
+# Install PNPM dependencies
+RUN pnpm install --frozen-lockfile
+
 # Copy application files
 COPY . .
 
 # Optimize autoload
 RUN composer dump-autoload --optimize
 
-# Copy frontend build assets
-COPY --from=frontend /app/public/build /var/www/html/public/build
+# Build assets for production
+RUN pnpm build
 
 # Set correct permissions
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Stage 2: Production environment
-FROM php:8.3.2-fpm-alpine AS production
+FROM php:8.3-fpm-alpine3.21 AS production
 
 # Install production runtime libraries
 RUN apk add --no-cache \
@@ -91,9 +85,10 @@ RUN apk add --no-cache \
     icu \
     libzip \
     fcgi \
-    mysql-client \
     zip \
-    unzip
+    unzip \
+    mysql-client \
+    supervisor
 
 # Copy health check script
 RUN curl -o /usr/local/bin/php-fpm-healthcheck \
@@ -103,6 +98,13 @@ RUN curl -o /usr/local/bin/php-fpm-healthcheck \
 # Copy initialization script
 COPY ./docker/production/app/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
+
+# Copy supervisor configuration for scheduler workers
+COPY ./docker/production/app/supervisord.conf /etc/supervisord.conf
+COPY ./docker/production/app/supervisor/ /etc/supervisor/conf.d/
+
+# copy custom php.ini (timezone)
+COPY ./docker/production/app/php.ini /usr/local/etc/php/conf.d/99-timezone.ini
 
 # Copy storage structure
 COPY ./storage /var/www/html/storage-init
@@ -127,9 +129,6 @@ WORKDIR /var/www/html
 # Ensure correct permissions
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
-
-# Switch to non-privileged user
-USER www-data
 
 # Set entrypoint
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

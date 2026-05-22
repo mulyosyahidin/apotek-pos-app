@@ -55,9 +55,11 @@ class BackupDatabaseToTelegram extends Command
             return self::FAILURE;
         }
 
+        $appName = config('app.name', 'Apotek POS App');
+
         $response = Telegraph::bot($botToken)
             ->chat($chatId)
-            ->message("[ApotekPosApp] Backup database {$database} - ".now()->format('d/m/Y H:i:s'))
+            ->message("[{$appName}] Backup database {$database} - ".now()->format('d/m/Y H:i:s'))
             ->document($backupPath, $filename)
             ->send();
 
