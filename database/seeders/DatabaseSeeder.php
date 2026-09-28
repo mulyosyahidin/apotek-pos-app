@@ -14,12 +14,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::create([
-            'name' => 'Admin',
-            'email' => 'admin@apotek.app',
-            'role' => UserRole::ADMIN->value,
-            'password' => bcrypt('password'),
-            'email_verified_at' => now(),
-        ]);
+        $email = 'admin@apotek.app';
+
+        if (User::query()->where('email', $email)->doesntExist()) {
+            User::create([
+                'name' => 'Admin',
+                'email' => $email,
+                'role' => UserRole::ADMIN->value,
+                'password' => bcrypt('password'),
+                'email_verified_at' => now(),
+            ]);
+        }
     }
 }

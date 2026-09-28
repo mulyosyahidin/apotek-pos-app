@@ -19,7 +19,11 @@ class RegionDataSeeder extends Seeder
         try {
             $provinces = json_decode(file_get_contents(database_path('seeders/data/provinces.json')), true);
             foreach ($provinces as $provinceData) {
-                \App\Models\Province::create([
+                if (\App\Models\Province::query()->where('id', $provinceData['id'])->exists()) {
+                    continue;
+                }
+
+                \App\Models\Province::forceCreate([
                     'id' => $provinceData['id'],
                     'name' => $provinceData['name'],
                 ]);
@@ -27,7 +31,11 @@ class RegionDataSeeder extends Seeder
 
             $regencies = json_decode(file_get_contents(database_path('seeders/data/regencies.json')), true);
             foreach ($regencies as $regencyData) {
-                \App\Models\Regency::create([
+                if (\App\Models\Regency::query()->where('id', $regencyData['id'])->exists()) {
+                    continue;
+                }
+
+                \App\Models\Regency::forceCreate([
                     'id' => $regencyData['id'],
                     'province_id' => $regencyData['province_id'],
                     'name' => $regencyData['name'],
