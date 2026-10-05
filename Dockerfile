@@ -2,17 +2,14 @@
 FROM php:8.3-fpm-bookworm AS builder
 
 ENV PNPM_VERSION=10.33.2
+ENV NODE_VERSION=22.23.3
 ENV DEBIAN_FRONTEND=noninteractive
-
-COPY --from=node:22-bookworm /usr/local/bin/node /usr/local/bin/node
-COPY --from=node:22-bookworm /usr/local/bin/npm /usr/local/bin/npm
-COPY --from=node:22-bookworm /usr/local/bin/npx /usr/local/bin/npx
-COPY --from=node:22-bookworm /usr/local/lib/node_modules /usr/local/lib/node_modules
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         ca-certificates \
         curl \
         unzip \
+        xz-utils \
         libpng-dev \
         libjpeg62-turbo-dev \
         libfreetype6-dev \
@@ -22,6 +19,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         default-libmysqlclient-dev \
         pkg-config \
         $PHPIZE_DEPS \
+    && arch="$(dpkg --print-architecture)" \
+    && case "$arch" in \
+        amd64) node_arch=x64 ;; \
+        arm64) node_arch=arm64 ;; \
+        *) echo "unsupported architecture: $arch" >&2; exit 1 ;; \
+    esac \
+    && curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${node_arch}.tar.xz" \
+        | tar -xJ -C /usr/local --strip-components=1 \
     && npm install --global pnpm@${PNPM_VERSION} \
     && node --version \
     && npm --version \
