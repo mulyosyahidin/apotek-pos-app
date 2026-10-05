@@ -99,6 +99,7 @@ class CreateDatabaseBackupJob implements ShouldQueue
             '--routines',
             '--triggers',
             '--events',
+            '--no-tablespaces',
             '--host='.$connection['host'],
             '--port='.(string) $connection['port'],
             '--user='.$connection['username'],

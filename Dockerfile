@@ -1,25 +1,27 @@
 # Stage 1: Build environment and Composer dependencies
-FROM php:8.3-fpm-alpine3.21 AS builder
+FROM php:8.3-fpm-bookworm AS builder
 
 ENV PNPM_VERSION=10.33.2
+ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apk add --no-cache \
-    curl \
-    ca-certificates \
-    unzip \
-    libpng-dev \
-    libjpeg-turbo-dev \
-    freetype-dev \
-    libxml2-dev \
-    icu-dev \
-    libzip-dev \
-    mariadb-dev \
-    autoconf \
-    g++ \
-    make \
-    nodejs \
-    npm \
-    mysql-client \
+COPY --from=node:22-bookworm /usr/local/bin/node /usr/local/bin/node
+COPY --from=node:22-bookworm /usr/local/bin/npm /usr/local/bin/npm
+COPY --from=node:22-bookworm /usr/local/bin/npx /usr/local/bin/npx
+COPY --from=node:22-bookworm /usr/local/lib/node_modules /usr/local/lib/node_modules
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        ca-certificates \
+        curl \
+        unzip \
+        libpng-dev \
+        libjpeg62-turbo-dev \
+        libfreetype6-dev \
+        libxml2-dev \
+        libicu-dev \
+        libzip-dev \
+        default-libmysqlclient-dev \
+        pkg-config \
+        $PHPIZE_DEPS \
     && npm install --global pnpm@${PNPM_VERSION} \
     && node --version \
     && npm --version \
@@ -34,107 +36,83 @@ RUN apk add --no-cache \
         soap \
         gd \
     && pecl install redis \
-    && docker-php-ext-enable redis
+    && docker-php-ext-enable redis \
+    && rm -rf /var/lib/apt/lists/*
 
-# Buat user dan grup www-data dengan UID dan GID yang spesifik
-ARG UID=1000
-ARG GID=1000
-RUN if ! id -u www-data >/dev/null 2>&1; then \
-    addgroup -g $GID www-data && \
-    adduser -u $UID -G www-data -D www-data; \
-    fi
-
-# Set working directory
 WORKDIR /var/www/html
 
-# Copy Composer files
 COPY composer.json composer.lock ./
 
-# Install Composer dependencies
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
     && composer install --no-dev --optimize-autoloader --no-interaction --no-progress --prefer-dist --no-scripts
 
-# Copy PNPM files
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
-# Install PNPM dependencies
 RUN pnpm install --frozen-lockfile
 
-# Copy application files
 COPY . .
 
-# Optimize autoload
-RUN composer dump-autoload --optimize
-
-# Build assets for production
-RUN pnpm build
-
-# Set correct permissions
-RUN chown -R www-data:www-data /var/www/html \
+RUN composer dump-autoload --optimize \
+    && pnpm build \
+    && chown -R www-data:www-data /var/www/html \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Stage 2: Production environment
-FROM php:8.3-fpm-alpine3.21 AS production
+FROM php:8.3-fpm-bookworm AS production
 
-# Install production runtime libraries
-RUN apk add --no-cache \
-    libpng \
-    libjpeg-turbo \
-    freetype \
-    libxml2 \
-    icu \
-    libzip \
-    fcgi \
-    zip \
-    unzip \
-    mysql-client \
-    supervisor
+ENV DEBIAN_FRONTEND=noninteractive
 
-# Copy health check script
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        ca-certificates \
+        curl \
+        libpng16-16 \
+        libjpeg62-turbo \
+        libfreetype6 \
+        libxml2 \
+        libicu72 \
+        libzip4 \
+        libmariadb3 \
+        libfcgi-bin \
+        zip \
+        unzip \
+        supervisor \
+    && rm -rf /var/lib/apt/lists/*
+
+# Alpine mysql-client is MariaDB's client and fails against MySQL 8.
+COPY --from=mysql:8.4 /usr/bin/mysqldump /usr/local/bin/mysqldump
+
+RUN mysqldump --version
+
 RUN curl -o /usr/local/bin/php-fpm-healthcheck \
-    https://raw.githubusercontent.com/renatomefi/php-fpm-healthcheck/master/php-fpm-healthcheck \
+        https://raw.githubusercontent.com/renatomefi/php-fpm-healthcheck/master/php-fpm-healthcheck \
     && chmod +x /usr/local/bin/php-fpm-healthcheck
 
-# Copy initialization script
 COPY ./docker/production/app/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-# Copy supervisor configuration for scheduler workers
 COPY ./docker/production/app/supervisord.conf /etc/supervisord.conf
 COPY ./docker/production/app/supervisor/ /etc/supervisor/conf.d/
 
-# copy custom php.ini (timezone)
 COPY ./docker/production/app/php.ini /usr/local/etc/php/conf.d/99-timezone.ini
 
-# Copy storage structure
 COPY ./storage /var/www/html/storage-init
 
-# Copy PHP extensions and libraries from the builder stage
 COPY --from=builder /usr/local/lib/php/extensions/ /usr/local/lib/php/extensions/
 COPY --from=builder /usr/local/etc/php/conf.d/ /usr/local/etc/php/conf.d/
 COPY --from=builder /usr/local/bin/docker-php-ext-* /usr/local/bin/
 
-# Use production PHP configuration
-RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
+    && sed -i '/\[www\]/a pm.status_path = /status' /usr/local/etc/php-fpm.d/zz-docker.conf
 
-# Enable PHP-FPM status page
-RUN sed -i '/\[www\]/a pm.status_path = /status' /usr/local/etc/php-fpm.d/zz-docker.conf
-
-# Copy application code and dependencies from the build stage
 COPY --from=builder /var/www/html /var/www/html
 
-# Set working directory
 WORKDIR /var/www/html
 
-# Ensure correct permissions
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Set entrypoint
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
-# Expose port 9000
 EXPOSE 9000
 
-# Start PHP-FPM
 CMD ["php-fpm"]

@@ -88,6 +88,7 @@ class BackupDatabaseToTelegram extends Command
             '--routines',
             '--triggers',
             '--events',
+            '--no-tablespaces',
             '--host='.$connection['host'],
             '--port='.(string) $connection['port'],
             '--user='.$connection['username'],
