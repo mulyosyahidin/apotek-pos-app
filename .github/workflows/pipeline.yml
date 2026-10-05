@@ -52,129 +52,29 @@ jobs:
     needs: build
     if: github.event_name == 'push'
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
       - name: Debug Variables
         run: |
-          echo "IMAGE_NAME: ${{ vars.IMAGE_NAME }}"
-          echo "APP_NAME: ${{ vars.APP_NAME }}"
-          echo "APP_URL: ${{ vars.APP_URL }}"
-          echo "APP_DOMAIN: ${{ vars.APP_DOMAIN }}"
+          echo "IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
           echo "HOST: ${{ vars.HOST }}"
           echo "USERNAME: ${{ vars.USERNAME }}"
           echo "APP_PATH: ${{ vars.APP_PATH }}"
-          echo "DB_HOST: ${{ vars.DB_HOST }}"
-          echo "DB_DATABASE: ${{ vars.DB_DATABASE }}"
-          echo "DB_USERNAME: ${{ vars.DB_USERNAME }}"
-
-      - name: Copy files to server
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ vars.HOST }}
-          username: ${{ vars.USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
-          source: "docker-compose.yml,docker/production/nginx/default.conf,docker/production/db/init.sql"
-          target: ${{ vars.APP_PATH }}
 
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.2.0
         env:
           GHCR_PAT: ${{ secrets.GHCR_PAT }}
-          IMAGE_SHA: ${{ github.sha }}
-          APP_KEY: ${{ secrets.APP_KEY }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          DB_ROOT_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         with:
           host: ${{ vars.HOST }}
           username: ${{ vars.USERNAME }}
           key: ${{ secrets.SSH_KEY }}
-          envs: GHCR_PAT,IMAGE_SHA,APP_KEY,DB_PASSWORD,DB_ROOT_PASSWORD,TELEGRAM_BOT_TOKEN,TELEGRAM_CHAT_ID
+          envs: GHCR_PAT
           script: |
             cd ${{ vars.APP_PATH }}
-
-            # Buat .env
-            cat > .env << EOF
-            # App
-            APP_NAME=${{ vars.APP_NAME }}
-            APP_ENV=production
-            APP_KEY=${APP_KEY}
-            APP_DEBUG=false
-            APP_URL=${{ vars.APP_URL }}
-            APP_DOMAIN=${{ vars.APP_DOMAIN }}
-
-            APP_LOCALE=en
-            APP_FALLBACK_LOCALE=en
-            APP_FAKER_LOCALE=en_US
-            APP_MAINTENANCE_DRIVER=file
-            PHP_CLI_SERVER_WORKERS=4
-            BCRYPT_ROUNDS=12
-
-            # Logging
-            LOG_CHANNEL=stack
-            LOG_STACK=single
-            LOG_DEPRECATIONS_CHANNEL=null
-            LOG_LEVEL=debug
-
-            # Database
-            DB_CONNECTION=mysql
-            DB_HOST=${{ vars.DB_HOST }}
-            DB_PORT=3306
-            DB_DATABASE=${{ vars.DB_DATABASE }}
-            DB_USERNAME=${{ vars.DB_USERNAME }}
-            DB_PASSWORD=${DB_PASSWORD}
-            DB_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
-
-            MYSQLDUMP_PATH=mysqldump
-            DATABASE_BACKUP_TIMEZONE=Asia/Jakarta
-
-            TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
-            TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
-
-            # Session & Cache
-            SESSION_DRIVER=file
-            SESSION_LIFETIME=120
-            SESSION_ENCRYPT=false
-            SESSION_PATH=/
-            SESSION_DOMAIN=null
-            BROADCAST_CONNECTION=log
-            FILESYSTEM_DISK=public
-            QUEUE_CONNECTION=database
-            CACHE_STORE=database
-
-            # Docker
-            DOCKER_IMAGE=${{ vars.IMAGE_NAME }}:${IMAGE_SHA}
-            EOF
-
-            chmod 600 .env
-
-            # Login & pull image
+            git fetch origin main
+            git reset --hard origin/main
             echo "$GHCR_PAT" | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
-            docker pull ghcr.io/${{ env.IMAGE_NAME }}:${IMAGE_SHA}
-            docker tag ghcr.io/${{ env.IMAGE_NAME }}:${IMAGE_SHA} ${{ vars.IMAGE_NAME }}:${IMAGE_SHA}
-
-            # Restart
-            docker compose up -d --remove-orphans
-
-            # Health check
-            count=0
-            CONTAINER=$(docker compose ps -q app 2>/dev/null | head -1)
-            if [ -n "$CONTAINER" ]; then
-              until [ "$(docker inspect --format='{{.State.Health.Status}}' $CONTAINER 2>/dev/null)" = "healthy" ]; do
-                if [ $count -ge 20 ]; then
-                  echo "Health check timeout"
-                  docker compose down
-                  docker logout ghcr.io
-                  exit 1
-                fi
-                echo "Waiting... ($((count*5))s)"
-                sleep 5
-                count=$((count+1))
-              done
-            fi
-
-            docker image prune -f
+            set +e
+            ./scripts/deploy.sh remote ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+            status=$?
             docker logout ghcr.io
-            echo "Deployment successful"
+            exit $status
