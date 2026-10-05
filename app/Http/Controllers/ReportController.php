@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ReportsExport;
 use App\Models\Transaction;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Inertia\Inertia;
+use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ReportController extends Controller
 {
@@ -17,6 +21,64 @@ class ReportController extends Controller
         $endDate = $request->get('end_date');
         $searchQuery = $request->get('search');
 
+        $baseQuery = $this->filteredTransactionsQuery($time, $startDate, $endDate);
+        $totalSales = (clone $baseQuery)->sum('total_price');
+        $reports = $this->applySearch($baseQuery, $searchQuery)
+            ->with('cashier')
+            ->latest()
+            ->paginate($perPage);
+
+        return Inertia::render('Reports/Index', [
+            'time' => $time,
+            'defaultStartDate' => $startDate,
+            'defaultEndDate' => $endDate,
+            'totalSales' => $totalSales,
+            'items' => $reports->items(),
+            'meta' => [
+                'current_page' => $reports->currentPage(),
+                'total_pages' => $reports->lastPage(),
+                'per_page' => $reports->perPage(),
+                'total_items' => $reports->total(),
+            ],
+            'timeAsText' => $this->timeAsText($time, $startDate, $endDate),
+            'searchQuery' => $searchQuery,
+            'defaultPerPage' => $perPage,
+        ]);
+    }
+
+    public function export(Request $request): BinaryFileResponse
+    {
+        // PhpSpreadsheet keeps worksheet cells in memory; ~30k rows needs more than 128M.
+        ini_set('memory_limit', '512M');
+
+        $time = $request->get('time');
+        $startDate = $request->get('start_date');
+        $endDate = $request->get('end_date');
+        $searchQuery = $request->get('search');
+
+        $query = $this->applySearch(
+            $this->filteredTransactionsQuery($time, $startDate, $endDate),
+            $searchQuery,
+        )
+            ->with('cashier')
+            ->latest('id');
+
+        $filename = 'laporan-penjualan-'.now()->format('Y-m-d-His').'.xlsx';
+
+        return Excel::download(new ReportsExport($query), $filename);
+    }
+
+    public function show(Transaction $transaction)
+    {
+        $transaction->load('items.product', 'cashier');
+
+        return Inertia::render('Reports/Show', [
+            'transaction' => $transaction,
+        ]);
+    }
+
+    private function filteredTransactionsQuery(?string $time, ?string $startDate, ?string $endDate): Builder
+    {
         // time
         // 1: hari ini
         // 2: minggu ini
@@ -24,6 +86,7 @@ class ReportController extends Controller
         // 4: tahun ini
         // 5: semua
         // 6: custom
+        // 7: kemarin
 
         $query = Transaction::query();
 
@@ -46,17 +109,22 @@ class ReportController extends Controller
             $query->whereBetween('date', [Carbon::yesterday()->startOfDay(), Carbon::yesterday()->endOfDay()]);
         }
 
-        $totalSales = $query->sum('total_price');
-        $reports = $query
-            ->when($searchQuery, function ($query) use ($searchQuery) {
+        return $query;
+    }
+
+    private function applySearch(Builder $query, ?string $searchQuery): Builder
+    {
+        return $query->when($searchQuery, function (Builder $query) use ($searchQuery) {
+            $query->where(function (Builder $query) use ($searchQuery) {
                 $query->where('customer_name', 'like', '%'.$searchQuery.'%')
                     ->orWhere('customer_phone_number', 'like', '%'.$searchQuery.'%');
-            })
-            ->with('cashier')
-            ->latest()
-            ->paginate($perPage);
+            });
+        });
+    }
 
-        $timeAsText = match ($time) {
+    private function timeAsText(?string $time, ?string $startDate, ?string $endDate): string
+    {
+        return match ($time) {
             '1' => 'Hari Ini ('.Carbon::now()->format('d/m/Y').')',
             '2' => 'Minggu Ini ('.Carbon::now()->startOfWeek()->format('d/m/Y').' - '.Carbon::now()->endOfWeek()->format('d/m/Y').')',
             '3' => 'Bulan Ini ('.Carbon::now()->startOfMonth()->format('d/m/Y').' - '.Carbon::now()->endOfMonth()->format('d/m/Y').')',
@@ -66,31 +134,5 @@ class ReportController extends Controller
             '7' => 'Kemarin ('.Carbon::yesterday()->format('d/m/Y').')',
             default => 'Semua Waktu',
         };
-
-        return Inertia::render('Reports/Index', [
-            'time' => $time,
-            'defaultStartDate' => $startDate,
-            'defaultEndDate' => $endDate,
-            'totalSales' => $totalSales,
-            'items' => $reports->items(),
-            'meta' => [
-                'current_page' => $reports->currentPage(),
-                'total_pages' => $reports->lastPage(),
-                'per_page' => $reports->perPage(),
-                'total_items' => $reports->total(),
-            ],
-            'timeAsText' => $timeAsText,
-            'searchQuery' => $searchQuery,
-            'defaultPerPage' => $perPage,
-        ]);
-    }
-
-    public function show(Transaction $transaction)
-    {
-        $transaction->load('items.product', 'cashier');
-
-        return Inertia::render('Reports/Show', [
-            'transaction' => $transaction,
-        ]);
     }
 }

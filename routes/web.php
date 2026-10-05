@@ -17,6 +17,7 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 
     Route::middleware('role:admin')->group(function () {
         Route::get('/reports', [\App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
+        Route::get('/reports/export', [\App\Http\Controllers\ReportController::class, 'export'])->name('reports.export');
         Route::get('/reports/{transaction}', [\App\Http\Controllers\ReportController::class, 'show'])->name('reports.show');
 
         Route::resource('cashiers', \App\Http\Controllers\CashierUserController::class)->except('destroy');

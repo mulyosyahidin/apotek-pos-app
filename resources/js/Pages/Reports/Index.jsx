@@ -2,6 +2,7 @@ import { Head, router } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Heading, Subheading } from '@/Components/Catalyst/heading';
 import {
+    ArrowDownTrayIcon,
     ExclamationTriangleIcon,
     EyeIcon,
     FunnelIcon,
@@ -69,6 +70,34 @@ export default function ReportsIndex({
         setEndDate(e.target.value);
     };
 
+    const buildFilterParams = ({ includePerPage = false } = {}) => {
+        const params = {};
+
+        if (selectedTime) {
+            params.time = selectedTime;
+        }
+
+        if (selectedTime === '6') {
+            if (startDate) {
+                params.start_date = startDate;
+            }
+
+            if (endDate) {
+                params.end_date = endDate;
+            }
+        }
+
+        if (search) {
+            params.search = search;
+        }
+
+        if (includePerPage && perPage != defaultPerPage) {
+            params.per_page = perPage;
+        }
+
+        return params;
+    };
+
     const handleFilterSubmit = () => {
         if (selectedTime === '6' && (!startDate || !endDate)) {
             alert('Mohon pilih rentang tanggal dengan benar');
@@ -82,24 +111,7 @@ export default function ReportsIndex({
             return;
         }
 
-        const params = {
-            time: selectedTime,
-        };
-
-        if (selectedTime === '6') {
-            params.start_date = startDate;
-            params.end_date = endDate;
-        }
-
-        if (perPage != defaultPerPage) {
-            params.per_page = perPage;
-        }
-
-        if (search) {
-            params.search = search;
-        }
-
-        router.visit(route('reports.index', params));
+        router.visit(route('reports.index', buildFilterParams({ includePerPage: true })));
     };
 
     const performSearch = (perPage = 10) => {
@@ -168,9 +180,29 @@ export default function ReportsIndex({
                 <div className="flex justify-between">
                     <Heading>Laporan Penjualan</Heading>
 
-                    <a href="#" onClick={() => setIsFilterDialogOpen(true)}>
-                        <FunnelIcon className="h-6 w-6 text-gray-500 dark:text-zinc-400" />
-                    </a>
+                    <div className="flex items-center gap-3">
+                        <a
+                            href={route(
+                                'reports.export',
+                                buildFilterParams(),
+                            )}
+                            title="Download Excel"
+                            className="inline-flex"
+                        >
+                            <ArrowDownTrayIcon className="h-6 w-6 text-gray-500 dark:text-zinc-400" />
+                        </a>
+                        <a
+                            href="#"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                setIsFilterDialogOpen(true);
+                            }}
+                            title="Filter"
+                            className="inline-flex"
+                        >
+                            <FunnelIcon className="h-6 w-6 text-gray-500 dark:text-zinc-400" />
+                        </a>
+                    </div>
                 </div>
 
                 <div className="mb-8 mt-8 flow-root">
