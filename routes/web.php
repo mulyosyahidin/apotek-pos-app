@@ -20,6 +20,10 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
         Route::get('/reports/export', [\App\Http\Controllers\ReportController::class, 'export'])->name('reports.export');
         Route::get('/reports/{transaction}', [\App\Http\Controllers\ReportController::class, 'show'])->name('reports.show');
 
+        Route::get('/backups', [\App\Http\Controllers\DatabaseBackupController::class, 'index'])->name('backups.index');
+        Route::post('/backups', [\App\Http\Controllers\DatabaseBackupController::class, 'store'])->name('backups.store');
+        Route::get('/backups/{backup}/download', [\App\Http\Controllers\DatabaseBackupController::class, 'download'])->name('backups.download');
+
         Route::resource('cashiers', \App\Http\Controllers\CashierUserController::class)->except('destroy');
         Route::resource('suppliers', \App\Http\Controllers\SupplierController::class)->except('show');
     });

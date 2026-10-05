@@ -15,8 +15,8 @@ import {
 } from '@heroicons/react/16/solid';
 import {
     ChartPieIcon,
+    CircleStackIcon,
     HomeIcon,
-    HashtagIcon,
     TagIcon,
     RocketLaunchIcon,
     CubeIcon,
@@ -139,6 +139,19 @@ export default function AdminLayout({ children }) {
                                 >
                                     <ChartPieIcon />
                                     <SidebarLabel>Laporan</SidebarLabel>
+                                </SidebarItem>
+                            </SidebarSection>
+                        )}
+
+                        {isAdmin && (
+                            <SidebarSection>
+                                <SidebarHeading>Backup</SidebarHeading>
+                                <SidebarItem
+                                    href={route('backups.index')}
+                                    current={pathname.startsWith('/backups')}
+                                >
+                                    <CircleStackIcon />
+                                    <SidebarLabel>Backup Data</SidebarLabel>
                                 </SidebarItem>
                             </SidebarSection>
                         )}
