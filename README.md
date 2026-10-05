@@ -27,6 +27,18 @@ DOCKER_IMAGE=apotek-pos-app:local
 
 5. Uji build manual, atau biarkan push ke `main` menjalankan deploy CI.
 
+### Tailscale untuk GitHub Actions
+
+Port 22 di IP publik ditutup. Job deploy masuk ke tailnet dulu, lalu SSH ke `HOST`.
+
+1. Di Tailscale, buat tag `tag:ci`.
+2. Buat OAuth client dengan scope `auth_keys` (write) yang boleh memakai tag itu.
+3. Di ACL, izinkan `tag:ci` mengakses server pada port 22.
+4. Simpan credential OAuth sebagai secret repository:
+   - `TS_OAUTH_CLIENT_ID`
+   - `TS_OAUTH_SECRET`
+5. Ubah variable `HOST` ke IP Tailscale (`100.x.x.x`) atau hostname MagicDNS, bukan IP publik.
+
 ### Perintah di server
 
 Build image di server lalu restart, tanpa mengubah `docker-compose.yml`:

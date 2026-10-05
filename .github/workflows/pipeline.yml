@@ -59,6 +59,14 @@ jobs:
           echo "USERNAME: ${{ vars.USERNAME }}"
           echo "APP_PATH: ${{ vars.APP_PATH }}"
 
+      - name: Tailscale
+        uses: tailscale/github-action@v4
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+          ping: ${{ vars.HOST }}
+
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.2.0
         env:
