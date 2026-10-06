@@ -10,6 +10,10 @@ else
   echo "Storage directory already initialized."
 fi
 
+# The queue worker used to run as root and created private backup directories
+# the web process could not read.
+chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+
 # Remove storage-init directory
 rm -rf /var/www/html/storage-init
 

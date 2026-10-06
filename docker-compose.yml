@@ -63,7 +63,7 @@ services:
     networks:
       - apotek-network
       - database_database-network
-    command: /bin/sh -c "php artisan queue:work --sleep=3 --tries=1 --timeout=960 --no-interaction & while true; do php artisan schedule:run --verbose --no-interaction; sleep 60; done"
+    command: /bin/sh -c "runuser -u www-data -- php artisan queue:work --sleep=3 --tries=1 --timeout=960 --no-interaction & while true; do runuser -u www-data -- php artisan schedule:run --verbose --no-interaction; sleep 60; done"
     depends_on:
       app:
         condition: service_healthy
